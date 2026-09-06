@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { PatientSessionProvider, usePatientSession } from './context/PatientSessionContext';
-import { AppHeader } from './components/common/AppHeader';
 import { AppFooter } from './components/common/AppFooter';
 import { CookieConsentModal } from './components/common/CookieConsentModal';
 import { Stepper } from './components/common/Stepper';
@@ -31,18 +30,11 @@ import { Screen9SummaryReadBack } from './components/patient/Screen9SummaryReadB
 import { Screen10SubmissionComplete } from './components/patient/Screen10SubmissionComplete';
 
 // Doctor Station Panels
-import { Screen11DoctorQueue } from './components/doctor/Screen11DoctorQueue';
-import { Screen12PatientHeader } from './components/doctor/Screen12PatientHeader';
-import { Screen13ClinicalSummaryEdit } from './components/doctor/Screen13ClinicalSummaryEdit';
-import { Screen14EvidenceSideBySide } from './components/doctor/Screen14EvidenceSideBySide';
-import { Screen15TimelineAbnormalDoctor } from './components/doctor/Screen15TimelineAbnormalDoctor';
 import { Screen16FhirModal } from './components/doctor/Screen16FhirModal';
 import { ReinterviewModal } from './components/doctor/ReinterviewModal';
 
-import { FileText, Split, Calendar, Leaf, Code, Stethoscope } from 'lucide-react';
-
 const MainAppContent = () => {
-  const { viewMode, setViewMode, deviceFrame, currentStep, doctorQueue, setDoctorQueue, activeDoctorTab, setActiveDoctorTab } = usePatientSession();
+  const { viewMode, setViewMode, deviceFrame, currentStep, doctorQueue } = usePatientSession();
   const [systemModalOpen, setSystemModalOpen] = useState(false);
   const [fhirModalOpen, setFhirModalOpen] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
