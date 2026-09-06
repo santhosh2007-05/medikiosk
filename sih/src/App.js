@@ -34,7 +34,7 @@ import { Screen16FhirModal } from './components/doctor/Screen16FhirModal';
 import { ReinterviewModal } from './components/doctor/ReinterviewModal';
 
 const MainAppContent = () => {
-  const { viewMode, setViewMode, deviceFrame, currentStep, doctorQueue } = usePatientSession();
+  const { viewMode, setViewMode, deviceFrame, currentStep, doctorQueue, setDoctorQueue } = usePatientSession();
   const [systemModalOpen, setSystemModalOpen] = useState(false);
   const [fhirModalOpen, setFhirModalOpen] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
