@@ -128,7 +128,7 @@ export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-900 text-white flex items-center justify-center p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-stone-900 text-white flex items-center justify-center p-4 pt-10 md:p-8 font-sans">
       <div className="max-w-5xl w-full bg-stone-950 border border-stone-800 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
         {/* LEFT COLUMN: MediKiosk Hospital Visual with Dynamic Internet Image */}
         <div className="md:col-span-6 relative p-8 md:p-10 flex flex-col justify-between bg-cover bg-center overflow-hidden transition-all duration-700"

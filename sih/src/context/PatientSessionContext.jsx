@@ -43,15 +43,30 @@ const initialSession = {
   }
 };
 
+const getInitialViewMode = () => {
+  if (typeof window !== 'undefined' && window.location) {
+    const path = window.location.pathname;
+    if (path === '/patient') return 'patient-portal';
+    if (path === '/register') return 'register';
+    if (path === '/doctor') return 'doctor';
+    if (path === '/nurse') return 'nurse';
+    if (path === '/admin') return 'admin';
+    if (path === '/receptionist') return 'receptionist';
+    if (path === '/appointments') return 'appointments';
+    if (path === '/kiosk') return 'kiosk';
+  }
+  return 'login'; // Defaults directly to login to avoid any 0.1ms flash
+};
+
 const PatientSessionContext = createContext(null);
 
 export const PatientSessionProvider = ({ children }) => {
   const [session, setSession] = useState(initialSession);
   const [currentStep, setCurrentStep] = useState(1);
-  const [viewMode, setViewMode] = useState('kiosk'); // 'kiosk' | 'doctor' | 'appointments'
-  const [deviceFrame, setDeviceFrame] = useState('desktop'); // 'desktop' | 'mobile'
+  const [viewMode, setViewMode] = useState(getInitialViewMode); // Default to login synchronously
+  const [deviceFrame, setDeviceFrame] = useState('desktop');
   const [activeDoctorTab, setActiveDoctorTab] = useState('summary');
-  const [authenticatedUser, setAuthenticatedUser] = useState(null); // Aadhaar auth user profile
+  const [authenticatedUser, setAuthenticatedUser] = useState(null);
 
   const [appointments, setAppointments] = useState([
     {
@@ -150,7 +165,7 @@ export const PatientSessionProvider = ({ children }) => {
         ...initialSession.identity,
         token: "OPD-" + Math.floor(100 + Math.random() * 900)
       },
-      documents: [] // CLEAR DOCUMENTS ON NEW SESSION RESET
+      documents: []
     });
     setCurrentStep(1);
   };

@@ -22,13 +22,14 @@ export const AppHeader = ({ onOpenSystemModal }) => {
         <div className="w-full px-3 sm:px-8 py-3 flex items-center justify-between flex-wrap gap-2">
           {/* Brand Logo & Title + Mobile Hamburger Button */}
           <div className="flex items-center gap-3">
-            {/* Hamburger / Bar Button for Mobile Phone Left Sidebar (ONLY ON PHONE / MOBILE APP VIEW) */}
+            {/* Top Bar Button for Mobile Phone Left Sidebar (ONLY ON PHONE / MOBILE APP VIEW) */}
             <button
               onClick={() => setMobileDrawerOpen(true)}
-              className="p-2 rounded-xl bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white transition border border-stone-800 md:hidden flex items-center justify-center shadow-xs"
+              className="px-2.5 py-1.5 rounded-xl bg-stone-900 text-emerald-400 hover:bg-stone-800 transition border border-stone-800 md:hidden flex items-center gap-1.5 font-bold text-xs shadow-xs"
               aria-label="Open Mobile Navigation Sidebar"
             >
               <Menu className="w-5 h-5 text-emerald-400" />
+              <span>Menu</span>
             </button>
 
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-stone-950 font-black text-xl shadow-lg shadow-emerald-500/20 font-mono">

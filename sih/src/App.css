@@ -31,3 +31,17 @@ body {
 ::-webkit-scrollbar-track { background: #f1f1ed; }
 ::-webkit-scrollbar-thumb { background: #cfcdc7; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #aaa8a2; }
+
+/* Enforce static sidebar removal on mobile / Android phone screens (< 768px) */
+@media (max-width: 767px) {
+  aside {
+    display: none !important;
+  }
+
+  /* Android & iOS Status Bar / Notch Safe Area Top Padding */
+  header {
+    padding-top: 36px !important;
+  }
+}
+
+

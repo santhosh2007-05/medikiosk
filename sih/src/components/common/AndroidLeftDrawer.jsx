@@ -42,7 +42,7 @@ export const AndroidLeftDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) =
       <div className="relative w-[85%] max-w-xs bg-stone-950 text-white h-full shadow-2xl flex flex-col justify-between z-10 transform transition-transform duration-300 ease-out overflow-y-auto border-r border-stone-800">
         
         {/* Top Header Section */}
-        <div className="p-5 space-y-5">
+        <div className="p-5 pt-10 space-y-5">
           {/* Platform Avatar & Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

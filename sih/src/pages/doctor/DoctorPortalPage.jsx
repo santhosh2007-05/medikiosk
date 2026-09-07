@@ -160,8 +160,8 @@ export const DoctorPortalPage = ({ onLogout }) => {
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col md:flex-row font-sans">
-      {/* UNIFIED DARK LEFT SIDEBAR NAVIGATION (DESKTOP VIEW) */}
-      <aside className="w-full md:w-72 bg-stone-900 text-white p-5 flex flex-col justify-between shrink-0 shadow-2xl border-r border-stone-800 sticky top-0 h-screen overflow-y-auto">
+      {/* UNIFIED DARK LEFT SIDEBAR NAVIGATION (DESKTOP ONLY - HIDDEN ON MOBILE/PHONE VIEW) */}
+      <aside className="hidden md:flex md:flex-col md:w-72 bg-stone-900 text-white p-5 justify-between shrink-0 shadow-2xl border-r border-stone-800 sticky top-0 h-screen overflow-y-auto">
         <div className="space-y-6">
           {/* Doctor Profile Card */}
           <div className="flex items-center gap-3 border-b border-stone-800 pb-5">

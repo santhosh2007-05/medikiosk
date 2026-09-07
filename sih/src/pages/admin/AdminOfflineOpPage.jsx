@@ -356,7 +356,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
       <div className={`min-h-screen ${highContrast ? 'bg-black text-yellow-300' : 'bg-stone-950 text-white'} flex flex-col md:flex-row overflow-hidden ${largeText ? 'text-base' : 'text-xs'}`}>
         
         {/* DEDICATED HOSPITAL CONTROL PANEL SIDEBAR */}
-        <aside className="w-full md:w-72 bg-stone-900 border-r border-stone-800 p-5 flex flex-col justify-between shrink-0 shadow-2xl sticky top-0 h-screen overflow-y-auto">
+        <aside className="hidden md:flex md:flex-col md:w-72 bg-stone-900 border-r border-stone-800 p-5 justify-between shrink-0 shadow-2xl sticky top-0 h-screen overflow-y-auto">
           <div className="space-y-5">
             {/* Back Button */}
             <button
@@ -901,8 +901,8 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
   return (
     <div className={`min-h-screen ${highContrast ? 'bg-black text-yellow-300' : 'bg-stone-950 text-white'} flex flex-col md:flex-row overflow-hidden ${largeText ? 'text-base' : 'text-xs'}`}>
       
-      {/* STATIC FIXED LEFT SIDEBAR (STICKY TOP-0 H-SCREEN OVERFLOW-Y-AUTO) */}
-      <aside className="w-full md:w-64 bg-stone-900 border-r border-stone-800 p-5 flex flex-col justify-between shrink-0 shadow-2xl sticky top-0 h-screen overflow-y-auto">
+      {/* STATIC FIXED LEFT SIDEBAR (DESKTOP ONLY - HIDDEN ON MOBILE/PHONE VIEW) */}
+      <aside className="hidden md:flex md:flex-col md:w-64 bg-stone-900 border-r border-stone-800 p-5 justify-between shrink-0 shadow-2xl sticky top-0 h-screen overflow-y-auto">
         <div className="space-y-6">
           {/* Logo Branding */}
           <div className="flex items-center gap-3 border-b border-stone-800 pb-5">
