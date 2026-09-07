@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { PatientSessionProvider, usePatientSession } from './context/PatientSessionContext';
+import { AppHeader } from './components/common/AppHeader';
 import { AppFooter } from './components/common/AppFooter';
+import { MobileBottomNav } from './components/common/MobileBottomNav';
 import { CookieConsentModal } from './components/common/CookieConsentModal';
 import { Stepper } from './components/common/Stepper';
 import { RedFlagBanner } from './components/common/RedFlagBanner';
@@ -116,7 +118,8 @@ const MainAppContent = () => {
           onRegisterSuccess={() => navigateTo('/patient', 'patient-portal')}
         />
       ) : (
-        <div className="min-h-screen w-full bg-stone-100 flex flex-col">
+        <div className="min-h-screen w-full bg-stone-100 flex flex-col pb-16 md:pb-0">
+          <AppHeader onOpenSystemModal={() => setSystemModalOpen(true)} />
           <RedFlagBanner />
 
           <div className="flex-1 w-full flex flex-col">
@@ -165,14 +168,22 @@ const MainAppContent = () => {
             )}
           </div>
 
-          {/* Footer Component */}
-          <AppFooter onNavigate={(path) => {
-            if (path === '/patient') navigateTo('/patient', 'patient-portal');
-            else if (path === '/kiosk') navigateTo('/kiosk', 'kiosk');
-            else if (path === '/doctor') navigateTo('/doctor', 'doctor');
-            else if (path === '/nurse') navigateTo('/nurse', 'nurse');
-            else if (path === '/admin') navigateTo('/admin', 'admin');
-          }} />
+          {/* Desktop Web Footer */}
+          <div className="hidden md:block">
+            <AppFooter onNavigate={(path) => {
+              if (path === '/patient') navigateTo('/patient', 'patient-portal');
+              else if (path === '/kiosk') navigateTo('/kiosk', 'kiosk');
+              else if (path === '/doctor') navigateTo('/doctor', 'doctor');
+              else if (path === '/nurse') navigateTo('/nurse', 'nurse');
+              else if (path === '/admin') navigateTo('/admin', 'admin');
+            }} />
+          </div>
+
+          {/* Native Mobile Bottom Navigation Bar */}
+          <MobileBottomNav
+            viewMode={viewMode}
+            onNavigate={(path, mode) => navigateTo(path, mode)}
+          />
         </div>
       )}
 

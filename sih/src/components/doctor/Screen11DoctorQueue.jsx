@@ -18,15 +18,15 @@ export const Screen11DoctorQueue = ({ activePatientToken, onSelectPatient }) => 
   });
 
   return (
-    <div className="bg-white border border-kiosk-border rounded-xl p-3.5 shadow-xs">
+    <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-md text-stone-100">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h3 className="font-bold text-sm text-kiosk-text">Patient Queue</h3>
-          <span className="text-xs font-bold px-2 py-0.5 bg-kiosk-teal-light text-kiosk-teal rounded-full">
+          <h3 className="font-bold text-sm text-white">Patient Queue</h3>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 bg-emerald-950 text-emerald-300 rounded-full border border-emerald-800">
             {filteredQueue.length}
           </span>
         </div>
-        <span className="text-[11px] text-stone-400">Sorted by Triage Priority</span>
+        <span className="text-[11px] text-stone-400 font-mono">Sorted by Triage Priority</span>
       </div>
 
       {/* Queue Search Input */}
@@ -36,7 +36,7 @@ export const Screen11DoctorQueue = ({ activePatientToken, onSelectPatient }) => 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search patient name, ABHA..."
-          className="w-full text-xs pl-8 pr-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:ring-1 focus:ring-kiosk-teal"
+          className="w-full text-xs pl-8 pr-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-white placeholder-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
         />
         <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
       </div>
@@ -52,8 +52,8 @@ export const Screen11DoctorQueue = ({ activePatientToken, onSelectPatient }) => 
               onClick={() => onSelectPatient(patient)}
               className={`p-3 rounded-xl border transition cursor-pointer ${
                 isSelected
-                  ? 'border-kiosk-teal bg-kiosk-teal-light/40 shadow-xs'
-                  : 'border-stone-200 hover:border-stone-300 bg-white'
+                  ? 'border-emerald-500 bg-emerald-950/60 shadow-md shadow-emerald-500/10'
+                  : 'border-stone-800 hover:border-stone-700 bg-stone-950'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -61,32 +61,32 @@ export const Screen11DoctorQueue = ({ activePatientToken, onSelectPatient }) => 
                   <img
                     src={avatarUrl}
                     alt={patient.name}
-                    className="w-9 h-9 rounded-lg object-cover border border-emerald-600 shrink-0"
+                    className="w-9 h-9 rounded-lg object-cover border border-emerald-500 shrink-0"
                   />
                   <div>
-                    <div className="font-bold text-sm text-kiosk-text flex items-center gap-1.5 flex-wrap">
+                    <div className="font-bold text-sm text-white flex items-center gap-1.5 flex-wrap">
                       {patient.name || "Anonymous Patient"}
                       {patient.redFlag && (
-                        <span className="text-[10px] bg-kiosk-alert-light text-kiosk-alert px-1.5 py-0.2 rounded font-bold border border-kiosk-alert/20 flex items-center gap-0.5">
-                          <AlertTriangle className="w-3 h-3 text-red-600" /> PRIORITY
+                        <span className="text-[10px] bg-rose-950 text-rose-300 px-1.5 py-0.2 rounded font-bold border border-rose-800 flex items-center gap-0.5">
+                          <AlertTriangle className="w-3 h-3 text-rose-400" /> PRIORITY
                         </span>
                       )}
                       {patient.ayushMode && (
-                        <span className="text-[10px] bg-kiosk-ayush-light text-kiosk-ayush px-1.5 py-0.2 rounded font-bold flex items-center gap-0.5">
-                          <Leaf className="w-3 h-3 text-emerald-600" /> AYUSH
+                        <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded font-bold border border-emerald-800 flex items-center gap-0.5">
+                          <Leaf className="w-3 h-3 text-emerald-400" /> AYUSH
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-stone-500 mt-0.5">
-                      {patient.age || "45"}y / {patient.gender || "Male"} • Token: <strong className="font-mono text-stone-700">{patient.token}</strong>
+                    <div className="text-xs text-stone-400 mt-0.5">
+                      {patient.age || "45"}y / {patient.gender || "Male"} • Token: <strong className="font-mono text-emerald-400">{patient.token}</strong>
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] text-stone-400 font-mono shrink-0">{patient.waitingTime || "Just now"}</span>
+                <span className="text-[10px] text-stone-500 font-mono shrink-0">{patient.waitingTime || "Just now"}</span>
               </div>
 
-              <div className="mt-2 text-xs text-stone-600 line-clamp-1 bg-stone-50 p-1.5 rounded border border-stone-100">
-                <span className="font-semibold text-stone-700">Complaint:</span> {patient.chiefComplaint || "Intake consultation"}
+              <div className="mt-2 text-xs text-stone-300 line-clamp-1 bg-stone-900 p-1.5 rounded border border-stone-800">
+                <span className="font-semibold text-emerald-400">Complaint:</span> {patient.chiefComplaint || "Intake consultation"}
               </div>
             </div>
           );

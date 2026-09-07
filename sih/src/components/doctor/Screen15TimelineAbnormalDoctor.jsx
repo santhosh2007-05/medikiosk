@@ -6,42 +6,42 @@ export const Screen15TimelineAbnormalDoctor = ({ activePatient }) => {
   if (!activePatient) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-stone-100">
       <div className="flex items-center justify-between">
-        <h4 className="font-bold text-sm text-kiosk-text">Longitudinal Medical Timeline</h4>
-        <span className="text-xs text-stone-500">Sorted by Extracted Document Date</span>
+        <h4 className="font-bold text-sm text-white">Longitudinal Medical Timeline</h4>
+        <span className="text-xs text-stone-400 font-mono">Sorted by Extracted Document Date</span>
       </div>
 
       <div className="space-y-3">
         {activePatient.documents && activePatient.documents.length > 0 ? (
           activePatient.documents.map((doc, idx) => (
-            <div key={idx} className="border border-stone-200 rounded-xl p-4 bg-stone-50/60">
+            <div key={idx} className="border border-stone-800 rounded-2xl p-4 bg-stone-950">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <span className="text-xs font-bold text-kiosk-teal uppercase tracking-wider">{doc.documentType}</span>
-                  <h4 className="font-bold text-sm text-kiosk-text">{doc.extracted.diagnosis || 'Extracted Clinical Record'}</h4>
+                  <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">{doc.documentType}</span>
+                  <h4 className="font-bold text-sm text-white">{doc.extracted.diagnosis || 'Extracted Clinical Record'}</h4>
                 </div>
-                <span className="text-xs text-stone-500 font-mono bg-white px-2 py-1 rounded border">{doc.documentDate}</span>
+                <span className="text-xs text-stone-400 font-mono bg-stone-900 px-2.5 py-1 rounded-lg border border-stone-800">{doc.documentDate}</span>
               </div>
 
               {doc.extracted.labValues && doc.extracted.labValues.length > 0 && (
-                <div className="mt-3 pt-2 border-t border-stone-200 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="mt-3 pt-2 border-t border-stone-800 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {doc.extracted.labValues.map((lab, i) => (
                     <div
                       key={i}
-                      className={`p-2.5 rounded-lg border text-xs flex justify-between items-center ${
+                      className={`p-2.5 rounded-xl border text-xs flex justify-between items-center ${
                         lab.isAbnormal
-                          ? 'bg-kiosk-alert-light border-kiosk-alert/30 text-kiosk-alert font-semibold'
-                          : 'bg-white border-stone-200 text-stone-700'
+                          ? 'bg-rose-950/80 border-rose-800 text-rose-300 font-semibold'
+                          : 'bg-stone-900 border-stone-800 text-stone-200'
                       }`}
                     >
                       <div>
                         <div className="font-bold">{lab.name}</div>
-                        <div className="text-[10px] text-stone-500">Ref Range: {REFERENCE_RANGES[lab.name] ? `${REFERENCE_RANGES[lab.name].min} - ${REFERENCE_RANGES[lab.name].max} ${REFERENCE_RANGES[lab.name].unit}` : 'Standard'}</div>
+                        <div className="text-[10px] text-stone-400">Ref Range: {REFERENCE_RANGES[lab.name] ? `${REFERENCE_RANGES[lab.name].min} - ${REFERENCE_RANGES[lab.name].max} ${REFERENCE_RANGES[lab.name].unit}` : 'Standard'}</div>
                       </div>
                       <div className="text-right font-mono font-bold text-sm">
                         {lab.value} {lab.unit}
-                        {lab.isAbnormal && <span className="block text-[10px] flex items-center gap-0.5 justify-end"><TriangleAlert className="w-3 h-3" /> Out of Range</span>}
+                        {lab.isAbnormal && <span className="block text-[10px] flex items-center gap-0.5 justify-end text-rose-400"><TriangleAlert className="w-3 h-3" /> Out of Range</span>}
                       </div>
                     </div>
                   ))}
@@ -50,7 +50,7 @@ export const Screen15TimelineAbnormalDoctor = ({ activePatient }) => {
             </div>
           ))
         ) : (
-          <div className="p-6 bg-stone-50 border border-stone-200 rounded-xl text-stone-500 text-xs text-center">
+          <div className="p-6 bg-stone-950 border border-stone-800 rounded-2xl text-stone-400 text-xs text-center font-mono">
             No historical documents uploaded for this patient.
           </div>
         )}
