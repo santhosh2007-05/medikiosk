@@ -1,6 +1,6 @@
 import React from 'react';
 import { getHospitalLocationDetails } from '../../data/tnHospitals';
-import { MEDICAL_IMAGES } from '../../data/images';
+import { MEDICAL_IMAGES, FALLBACK_HOSPITAL_SVG } from '../../data/images';
 import { MapPin, Phone, Clock, Navigation, Stethoscope, Building2, ExternalLink } from 'lucide-react';
 
 export const HospitalLocationCard = ({ hospitalName, className = "" }) => {
@@ -25,6 +25,7 @@ export const HospitalLocationCard = ({ hospitalName, className = "" }) => {
           src={photoUrl}
           alt={details.name}
           className="w-full h-full object-cover"
+          onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_HOSPITAL_SVG; }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent" />
         <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
