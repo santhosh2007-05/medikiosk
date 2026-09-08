@@ -75,18 +75,6 @@ export const AppHeader = ({ onOpenSystemModal }) => {
               <span>Nurse Assist</span>
             </button>
 
-            {/* Viewport Frame Toggle */}
-            <button
-              onClick={() => setDeviceFrame(prev => prev === 'mobile' ? 'desktop' : 'mobile')}
-              className={`text-xs px-3 py-1.5 rounded-xl border font-semibold flex items-center gap-1.5 transition ${
-                deviceFrame === 'mobile'
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs font-bold'
-                  : 'bg-stone-900 text-stone-300 border-stone-800 hover:bg-stone-800'
-              }`}
-            >
-              {deviceFrame === 'mobile' ? <Smartphone className="w-4 h-4 text-amber-300" /> : <Monitor className="w-4 h-4 text-stone-400" />}
-              <span>{deviceFrame === 'mobile' ? "Phone Frame" : "Desktop View"}</span>
-            </button>
 
             {/* View Mode Switcher */}
             <div className="inline-flex rounded-xl border border-stone-800 p-1 bg-stone-900 overflow-x-auto max-w-full">
