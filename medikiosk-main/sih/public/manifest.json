@@ -1,6 +1,6 @@
 {
   "short_name": "MediKiosk",
-  "name": "MediKiosk - Smart Hospital OPD & CMCELL Portal",
+  "name": "MediKiosk - Smart Hospital OPD",
   "icons": [
     {
       "src": "favicon.ico",
@@ -25,5 +25,5 @@
   "orientation": "any",
   "theme_color": "#059669",
   "background_color": "#0c0a09",
-  "description": "Integrated AI Clinical Intake, Doctor Station EHR, Nurse Triage, ABDM Patient Portal and CMCELL Monitoring Command Center."
+  "description": "Integrated AI Clinical Intake, Doctor Station EHR, Nurse Triage, and ABDM Patient Portal."
 }
