@@ -1,0 +1,47 @@
+/* MediKiosk Global Styles & Clinical Design System Tokens */
+
+:root {
+  --kiosk-bg: #FAFAF8;
+  --kiosk-card: #FFFFFF;
+  --kiosk-border: #E5E3DD;
+  --kiosk-text: #1A1A18;
+  --kiosk-muted: #686660;
+  --kiosk-teal: #0F6E62;
+  --kiosk-teal-hover: #0B544B;
+  --kiosk-teal-light: #E8F3F1;
+  --kiosk-ayush: #5B7A4F;
+  --kiosk-ayush-light: #EFF5ED;
+  --kiosk-ayush-hover: #49633F;
+  --kiosk-alert: #B3261E;
+  --kiosk-alert-light: #FDF2F2;
+  --kiosk-warning: #B57406;
+  --kiosk-warning-light: #FFFBEB;
+}
+
+body {
+  background-color: var(--kiosk-bg);
+  color: var(--kiosk-text);
+  margin: 0;
+  font-family: 'Inter', 'Noto Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1ed; }
+::-webkit-scrollbar-thumb { background: #cfcdc7; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #aaa8a2; }
+
+/* Enforce static sidebar removal on mobile / Android phone screens (< 768px) */
+@media (max-width: 767px) {
+  aside {
+    display: none !important;
+  }
+
+  /* Android & iOS Status Bar / Notch Safe Area Top Padding */
+  header {
+    padding-top: 36px !important;
+  }
+}
+
+

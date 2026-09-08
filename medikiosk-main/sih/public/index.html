@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F6E62" />
+    <meta
+      name="description"
+      content="MediKiosk | AI Clinical History Intake & Doctor Station Platform"
+    />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>MediKiosk | AI Clinical Intake & Doctor Workspace</title>
+    <!-- Firebase App & Auth SDK for Real SMS OTP -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Noto Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'Noto Sans', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              kiosk: {
+                bg: '#FAFAF8',
+                card: '#FFFFFF',
+                border: '#E5E3DD',
+                text: '#1A1A18',
+                muted: '#686660',
+                teal: '#0F6E62',
+                'teal-hover': '#0B544B',
+                'teal-light': '#E8F3F1',
+                ayush: '#5B7A4F',
+                'ayush-light': '#EFF5ED',
+                'ayush-hover': '#49633F',
+                alert: '#B3261E',
+                'alert-light': '#FDF2F2',
+                warning: '#B57406',
+                'warning-light': '#FFFBEB',
+                neutral: '#33322E'
+              }
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-kiosk-bg text-kiosk-text font-sans antialiased min-h-screen">
+    <noscript>You need to enable JavaScript to run MediKiosk.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
