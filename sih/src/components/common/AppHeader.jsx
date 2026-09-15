@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { AadhaarAuthModal } from '../auth/AadhaarAuthModal';
 import { AndroidLeftDrawer } from './AndroidLeftDrawer';
-import { Plus, Activity, HeartHandshake, ShieldCheck, Smartphone, Monitor, Leaf, Menu } from 'lucide-react';
+import { Plus, HeartHandshake, ShieldCheck, Leaf, Menu, Activity } from 'lucide-react';
 
 export const AppHeader = ({ onOpenSystemModal }) => {
-  const { session, updateIdentity, viewMode, setViewMode, deviceFrame, setDeviceFrame, doctorQueue, authenticatedUser } = usePatientSession();
+  const { session, updateIdentity, viewMode, setViewMode, doctorQueue, authenticatedUser } = usePatientSession();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
@@ -73,19 +73,6 @@ export const AppHeader = ({ onOpenSystemModal }) => {
             >
               <HeartHandshake className="w-4 h-4 text-amber-400" />
               <span>Nurse Assist</span>
-            </button>
-
-            {/* Viewport Frame Toggle */}
-            <button
-              onClick={() => setDeviceFrame(prev => prev === 'mobile' ? 'desktop' : 'mobile')}
-              className={`text-xs px-3 py-1.5 rounded-xl border font-semibold flex items-center gap-1.5 transition ${
-                deviceFrame === 'mobile'
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs font-bold'
-                  : 'bg-stone-900 text-stone-300 border-stone-800 hover:bg-stone-800'
-              }`}
-            >
-              {deviceFrame === 'mobile' ? <Smartphone className="w-4 h-4 text-amber-300" /> : <Monitor className="w-4 h-4 text-stone-400" />}
-              <span>{deviceFrame === 'mobile' ? "Phone Frame" : "Desktop View"}</span>
             </button>
 
             {/* View Mode Switcher */}

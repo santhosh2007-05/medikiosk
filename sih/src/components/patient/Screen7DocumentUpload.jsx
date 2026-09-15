@@ -300,20 +300,25 @@ export const Screen7DocumentUpload = () => {
         }
       }
 
+      // If document failed quality/relevance or OCR check, reject and DO NOT add to record
+      if (isNonMedical || isUiScreenshot || isNonMedicalTechnical || ocrError || (isBlankOrRandom && !hasMedicalStructure)) {
+        setProcessing(false);
+        e.target.value = null;
+        return;
+      }
+
       const newDoc = {
         id: "doc-" + Date.now(),
-        documentType: isNonMedical ? "Non-Medical Document" : selectedDocType,
+        documentType: selectedDocType,
         documentDate: new Date().toISOString().split('T')[0],
         fileName: file.name,
         previewUrl: fileDataUrl,
-        confidenceScore: ocrConfidence || (isNonMedical ? 35 : 94),
-        qualityStatus: isNonMedical 
-          ? "Flagged: Non-Medical File" 
-          : (ocrConfidence < 30 ? "Warning: Low Text Clarity" : "Passed (Real Tesseract OCR Scan)"),
+        confidenceScore: ocrConfidence || 94,
+        qualityStatus: ocrConfidence < 30 ? "Warning: Low Text Clarity" : "Passed (Real Tesseract OCR Scan)",
         rawOcrText: realExtractedText,
         stagesStatus: {
           stage1: { status: "passed", detail: `File loaded (${(file.size / 1024).toFixed(1)} KB)` },
-          stage2: { status: ocrError ? "failed" : "passed", detail: `Tesseract OCR extracted ${realExtractedText.split(/\s+/).length} words (${ocrConfidence}% conf)` },
+          stage2: { status: "passed", detail: `Tesseract OCR extracted ${realExtractedText.split(/\s+/).length} words (${ocrConfidence}% conf)` },
           stage3: { status: stage3Status, detail: stage3Detail },
           stage4: { status: "passed", detail: `${aiResult.apiStatus} analyzed document content` }
         },
@@ -321,6 +326,7 @@ export const Screen7DocumentUpload = () => {
       };
 
       addDocument(newDoc);
+      setStageFailureReason(null);
       setProcessing(false);
       e.target.value = null;
     };

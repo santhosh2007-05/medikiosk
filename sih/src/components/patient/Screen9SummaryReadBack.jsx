@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { getTranslation } from '../../data/translations';
 import { Volume2, CheckCircle2 } from 'lucide-react';
@@ -7,6 +7,14 @@ export const Screen9SummaryReadBack = () => {
   const { session, updateSummary, setCurrentStep, setDoctorQueue } = usePatientSession();
   const lang = session.identity.language || 'en-IN';
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const toggleReadBack = () => {
     if (isPlayingAudio) {

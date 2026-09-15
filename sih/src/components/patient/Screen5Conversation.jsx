@@ -20,8 +20,14 @@ export const Screen5Conversation = () => {
       window.speechSynthesis.cancel();
       const msg = new SpeechSynthesisUtterance(currentQuestion.title);
       msg.lang = lang;
+      msg.rate = 0.95;
       window.speechSynthesis.speak(msg);
     }
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, [questionIdx, currentQuestion, lang]);
 
   const handleSelectOption = (opt, isUnsure = false) => {
