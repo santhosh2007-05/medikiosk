@@ -9,6 +9,7 @@ export const Screen4ChiefComplaint = () => {
   const lang = session.identity.language || 'en-IN';
   const [listening, setListening] = useState(false);
   const [customText, setCustomText] = useState("");
+  const [micStatusMsg, setMicStatusMsg] = useState("");
 
   const playVoicePrompt = () => {
     if ('speechSynthesis' in window) {
@@ -25,26 +26,67 @@ export const Screen4ChiefComplaint = () => {
     setCurrentStep(5);
   };
 
-  const startVoiceInput = () => {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert("Browser Speech Recognition not supported on this device. Please tap options or type below.");
+  const startVoiceInput = async () => {
+    setMicStatusMsg("");
+    // Request microphone permission explicitly from Android OS / Browser
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+    } catch (permErr) {
+      console.warn("Microphone permission prompt result:", permErr);
+      setMicStatusMsg("Microphone access requested. If prompted, please tap Allow.");
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setMicStatusMsg("Native voice engine not detected in WebView. You can type symptoms below or tap symptom cards.");
       return;
     }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = lang;
 
-    recognition.onstart = () => setListening(true);
-    recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
-      setCustomText(transcript);
-      updateHistory({ chiefComplaint: transcript });
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = lang;
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setListening(true);
+        setMicStatusMsg("🎙️ Listening... Speak your symptoms now.");
+      };
+
+      recognition.onresult = (e) => {
+        if (e.results && e.results[0] && e.results[0][0]) {
+          const transcript = e.results[0][0].transcript;
+          setCustomText(transcript);
+          updateHistory({ chiefComplaint: transcript });
+          setMicStatusMsg(`✅ Captured: "${transcript}"`);
+        }
+        setListening(false);
+      };
+
+      recognition.onerror = (err) => {
+        console.warn("Speech recognition error:", err);
+        setListening(false);
+        if (err.error === 'not-allowed') {
+          setMicStatusMsg("⚠️ Microphone permission denied. Please allow microphone in Android App Settings.");
+        } else if (err.error === 'no-speech') {
+          setMicStatusMsg("ℹ️ No speech detected. Tap mic again to speak.");
+        } else {
+          setMicStatusMsg(`Voice engine status: ${err.error || 'Offline'}. You can type symptoms or select options.`);
+        }
+      };
+
+      recognition.onend = () => {
+        setListening(false);
+      };
+
+      recognition.start();
+    } catch (e) {
+      console.error("SpeechRecognition start exception:", e);
       setListening(false);
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => setListening(false);
-
-    recognition.start();
+      setMicStatusMsg("Could not start speech engine. You can type symptoms directly.");
+    }
   };
 
   return (
@@ -146,13 +188,19 @@ export const Screen4ChiefComplaint = () => {
               type="button"
               onClick={startVoiceInput}
               className={`p-3 rounded-xl border font-semibold flex items-center justify-center transition active:scale-95 ${
-                listening ? 'bg-kiosk-alert text-white border-kiosk-alert animate-ping' : 'bg-white text-kiosk-teal border-kiosk-border hover:bg-stone-100'
+                listening ? 'bg-kiosk-alert text-white border-kiosk-alert animate-pulse' : 'bg-white text-kiosk-teal border-kiosk-border hover:bg-stone-100'
               }`}
               title="Voice Input"
             >
               <Mic className="w-5 h-5" />
             </button>
           </div>
+
+          {micStatusMsg && (
+            <p className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 mt-2.5">
+              {micStatusMsg}
+            </p>
+          )}
         </div>
       </div>
 
