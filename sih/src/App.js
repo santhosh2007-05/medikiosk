@@ -31,15 +31,9 @@ import { Screen8TimelineLabFlags } from './components/patient/Screen8TimelineLab
 import { Screen9SummaryReadBack } from './components/patient/Screen9SummaryReadBack';
 import { Screen10SubmissionComplete } from './components/patient/Screen10SubmissionComplete';
 
-// Doctor Station Panels
-import { Screen16FhirModal } from './components/doctor/Screen16FhirModal';
-import { ReinterviewModal } from './components/doctor/ReinterviewModal';
-
 const MainAppContent = () => {
-  const { viewMode, setViewMode, deviceFrame, currentStep, doctorQueue, setDoctorQueue } = usePatientSession();
+  const { viewMode, setViewMode, deviceFrame, currentStep } = usePatientSession();
   const [systemModalOpen, setSystemModalOpen] = useState(false);
-  const [fhirModalOpen, setFhirModalOpen] = useState(false);
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
 
   // Sync URL Path with View Mode
   const navigateTo = (path, mode) => {
@@ -68,35 +62,6 @@ const MainAppContent = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [setViewMode]);
 
-  const [selectedPatientToken, setSelectedPatientToken] = useState(
-    doctorQueue.length > 0 ? doctorQueue[0].token : null
-  );
-
-  const activePatient = doctorQueue.find(p => p.token === selectedPatientToken) || doctorQueue[0];
-
-  const [editableHpi, setEditableHpi] = useState(activePatient?.summaryText || "");
-  const [editableCc, setEditableCc] = useState(activePatient?.chiefComplaint || "");
-
-  const handleSelectPatientFromQueue = (patient) => {
-    setSelectedPatientToken(patient.token);
-    setEditableHpi(patient.summaryText || "");
-    setEditableCc(patient.chiefComplaint || "");
-  };
-
-  const handleAcceptSummary = () => {
-    setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, status: 'confirmed' } : p));
-    alert(`Summary for ${activePatient.name} accepted and confirmed into EHR record.`);
-  };
-
-  const handleSaveEdits = () => {
-    setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, summaryText: editableHpi, chiefComplaint: editableCc, status: 'doctor-edited' } : p));
-    alert("Doctor edits saved successfully.");
-  };
-
-  const handleConfirmReject = (reason) => {
-    setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, status: 'rejected' } : p));
-    alert(`Patient ${activePatient.name} sent for re-interview. Reason: ${reason}`);
-  };
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans flex flex-col justify-between">
@@ -190,8 +155,6 @@ const MainAppContent = () => {
       {/* Global Modals */}
       <CookieConsentModal />
       <SystemStatusModal isOpen={systemModalOpen} onClose={() => setSystemModalOpen(false)} />
-      <Screen16FhirModal isOpen={fhirModalOpen} onClose={() => setFhirModalOpen(false)} activePatient={activePatient} />
-      <ReinterviewModal isOpen={rejectModalOpen} onClose={() => setRejectModalOpen(false)} onConfirmReject={handleConfirmReject} />
     </div>
   );
 };

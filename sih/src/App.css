@@ -18,10 +18,21 @@
   --kiosk-warning-light: #FFFBEB;
 }
 
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+html, body, #root, .App {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   background-color: var(--kiosk-bg);
   color: var(--kiosk-text);
-  margin: 0;
   font-family: 'Inter', 'Noto Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -44,4 +55,40 @@ body {
   }
 }
 
+/* High-Contrast Input & Text Legibility Enforcement for Kiosk & Forms */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+select,
+textarea {
+  color: #0c0a09 !important; /* Stone-950 high contrast dark text */
+  background-color: #ffffff !important;
+  font-weight: 600 !important;
+}
 
+input::placeholder,
+textarea::placeholder {
+  color: #78716c !important; /* Stone-500 clear visible placeholder */
+  opacity: 1 !important;
+}
+
+/* Dark Theme Overrides for Inputs inside dark containers */
+.bg-stone-900 input,
+.bg-stone-950 input,
+.bg-stone-900 select,
+.bg-stone-950 select,
+.bg-stone-900 textarea,
+.bg-stone-950 textarea {
+  color: #ffffff !important;
+  background-color: #0c0a09 !important;
+  border-color: #27272a !important;
+}
+
+.bg-stone-900 input::placeholder,
+.bg-stone-950 input::placeholder,
+.bg-stone-900 textarea::placeholder,
+.bg-stone-950 textarea::placeholder {
+  color: #a1a1aa !important;
+}

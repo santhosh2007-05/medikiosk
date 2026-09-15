@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { getTranslation } from '../../data/translations';
-import { MEDICAL_IMAGES } from '../../data/images';
+import { MEDICAL_IMAGES, FALLBACK_HOSPITAL_SVG } from '../../data/images';
 import { motion } from 'framer-motion';
 import { ArrowRight, Leaf, Zap } from 'lucide-react';
 
@@ -39,7 +39,12 @@ export const Screen2Identification = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center max-w-xl mx-auto mb-4">
           <div className="md:col-span-12 rounded-xl overflow-hidden shadow-xs border border-stone-200">
-            <img src={MEDICAL_IMAGES.digitalKiosk} alt="Patient Registration" className="w-full h-28 object-cover" />
+            <img 
+              src={MEDICAL_IMAGES.digitalKiosk} 
+              alt="Patient Registration" 
+              className="w-full h-28 object-cover" 
+              onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_HOSPITAL_SVG; }}
+            />
           </div>
         </div>
 
@@ -52,13 +57,13 @@ export const Screen2Identification = () => {
               value={session.identity.name}
               onChange={(e) => updateIdentity({ name: e.target.value })}
               placeholder="e.g. JOSEPH VIJAY / ஜோசப் விஜய்"
-              className="w-full text-base px-4 py-3 rounded-xl border border-kiosk-border focus:ring-2 focus:ring-kiosk-teal focus:outline-none"
+              className="w-full text-base px-4 py-3 rounded-xl border border-stone-300 bg-white text-stone-900 placeholder-stone-500 font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-kiosk-text uppercase tracking-wider mb-1.5">{getTranslation("ageYears", lang)} *</label>
+              <label className="block text-xs font-bold text-stone-900 uppercase tracking-wider mb-1.5">{getTranslation("ageYears", lang)} *</label>
               <input
                 type="number"
                 min="1"
@@ -67,15 +72,15 @@ export const Screen2Identification = () => {
                 value={session.identity.age}
                 onChange={(e) => updateIdentity({ age: e.target.value })}
                 placeholder="e.g. 52"
-                className="w-full text-base px-4 py-3 rounded-xl border border-kiosk-border focus:ring-2 focus:ring-kiosk-teal focus:outline-none"
+                className="w-full text-base px-4 py-3 rounded-xl border border-stone-300 bg-white text-stone-900 placeholder-stone-500 font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-kiosk-text uppercase tracking-wider mb-1.5">{getTranslation("gender", lang)} *</label>
+              <label className="block text-xs font-bold text-stone-900 uppercase tracking-wider mb-1.5">{getTranslation("gender", lang)} *</label>
               <select
                 value={session.identity.gender}
                 onChange={(e) => updateIdentity({ gender: e.target.value })}
-                className="w-full text-base px-4 py-3 rounded-xl border border-kiosk-border focus:ring-2 focus:ring-kiosk-teal focus:outline-none bg-white"
+                className="w-full text-base px-4 py-3 rounded-xl border border-stone-300 bg-white text-stone-900 font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-none"
               >
                 <option value="Male">{getTranslation("male", lang)}</option>
                 <option value="Female">{getTranslation("female", lang)}</option>
@@ -86,8 +91,8 @@ export const Screen2Identification = () => {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-kiosk-text uppercase tracking-wider">{getTranslation("abhaId", lang)}</label>
-              <span className="text-[11px] text-stone-400">ABDM Sandbox</span>
+              <label className="text-xs font-bold text-stone-900 uppercase tracking-wider">{getTranslation("abhaId", lang)}</label>
+              <span className="text-[11px] text-stone-500 font-medium">ABDM Sandbox</span>
             </div>
             <div className="relative">
               <input
@@ -95,7 +100,7 @@ export const Screen2Identification = () => {
                 value={session.identity.token}
                 onChange={(e) => updateIdentity({ token: e.target.value })}
                 placeholder="91-XXXX-XXXX-XXXX"
-                className="w-full text-base px-4 py-3 rounded-xl border border-kiosk-border focus:ring-2 focus:ring-kiosk-teal focus:outline-none pr-10 font-mono"
+                className="w-full text-base px-4 py-3 rounded-xl border border-stone-300 bg-white text-stone-900 placeholder-stone-500 font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-none pr-10 font-mono"
               />
               <span className="absolute right-3 top-3.5 text-xs text-stone-400 font-mono">ABHA</span>
             </div>

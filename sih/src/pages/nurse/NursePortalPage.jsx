@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { MEDICAL_IMAGES, ROLE_AVATARS } from '../../data/images';
 import {
-  Activity, CheckCircle, UserCheck, HeartPulse, LogOut, Users, ShieldCheck, UserPlus,
-  Calendar, Bell, Settings, HelpCircle, Thermometer, Droplet, Stethoscope, AlertTriangle, ArrowRight
+  Activity, CheckCircle, HeartPulse, LogOut, Users, ShieldCheck, UserPlus,
+  Calendar, Bell, Settings, HelpCircle, Thermometer
 } from 'lucide-react';
 
 export const NursePortalPage = ({ onLogout }) => {
-  const { doctorQueue, setDoctorQueue, setViewMode, appointments } = usePatientSession();
+  const { doctorQueue, setDoctorQueue, setViewMode } = usePatientSession();
 
   const handleRegisterNurseOp = () => {
     const pName = prompt("Enter New Walk-in Patient Name:", "Trisha Krishnan");
@@ -226,7 +226,7 @@ export const NursePortalPage = ({ onLogout }) => {
                 ▸ Doctor
               </button>
               <button onClick={() => setViewMode('admin')} className="p-1.5 rounded-lg bg-stone-950 border border-stone-800 hover:bg-stone-800 text-stone-300 text-left truncate">
-                ▸ CMCELL
+                ▸ AYUSH
               </button>
             </div>
           </div>

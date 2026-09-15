@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
-import { TN_DISTRICTS, TN_HOSPITALS_BY_DISTRICT, ALL_380_TN_HOSPITALS, getPaginatedHospitals } from '../../data/tnHospitals';
+import { TN_DISTRICTS, TN_HOSPITALS_BY_DISTRICT } from '../../data/tnHospitals';
 import { HospitalLocationCard } from '../../components/common/HospitalLocationCard';
-import { MEDICAL_IMAGES, ROLE_AVATARS } from '../../data/images';
 import {
   UserPlus, QrCode, Printer, CheckCircle, Clock, ArrowRight, UserCheck,
-  Building, Phone, Search, LogOut, ShieldCheck, Activity, Users, PlusCircle,
-  TrendingUp, MapPin, ChevronLeft, ChevronRight
+  LogOut, Activity, Users, TrendingUp, MapPin
 } from 'lucide-react';
 
 export const ReceptionistPortalPage = ({ onLogout }) => {
   const { doctorQueue, setDoctorQueue, setViewMode, updateIdentity, resetSession, appointments } = usePatientSession();
-  const [activeTab, setActiveTab] = useState('register'); // 'register' | 'tokens' | 'hospitals' | 'search'
+  const [activeTab, setActiveTab] = useState('register'); // 'register' | 'tokens'
 
   // Dynamic Backend Stats Integration
   const [receptionStats, setReceptionStats] = useState(null);
@@ -34,25 +32,6 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
   const [district, setDistrict] = useState("Chennai");
   const [hospital, setHospital] = useState(TN_HOSPITALS_BY_DISTRICT["Chennai"][0]);
 
-  // Search, sorting & pagination state for hospitals directory
-  const [hospitalSearch, setHospitalSearch] = useState("");
-  const [selectedDirectoryDistrict, setSelectedDirectoryDistrict] = useState("All");
-  const [sortBy, setSortBy] = useState("nameAsc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
-
-  const paginatedData = getPaginatedHospitals({
-    district: selectedDirectoryDistrict,
-    searchQuery: hospitalSearch,
-    sortBy: sortBy,
-    page: currentPage,
-    pageSize: pageSize
-  });
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedDirectoryDistrict, hospitalSearch, sortBy, pageSize]);
-
   const [formData, setFormData] = useState({
     name: "",
     age: "",
@@ -67,7 +46,6 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
   const registeredTokens = doctorQueue;
 
   const [generatedTicket, setGeneratedTicket] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const handleDistrictChange = (e) => {
     const d = e.target.value;
@@ -226,7 +204,7 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
                 ▸ Doctor
               </button>
               <button onClick={() => setViewMode('admin')} className="p-1.5 rounded-lg bg-stone-950 border border-stone-800 hover:bg-stone-800 text-stone-300 text-left truncate">
-                ▸ CMCELL
+                ▸ AYUSH
               </button>
             </div>
           </div>

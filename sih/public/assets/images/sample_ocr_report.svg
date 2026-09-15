@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1050" viewBox="0 0 800 1050">
+  <rect width="800" height="1050" fill="#ffffff"/>
+  
+  <!-- Header Banner -->
+  <rect width="800" height="110" fill="#047857"/>
+  <text x="400" y="48" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#ffffff" text-anchor="middle">TAMIL NADU AYUSH STATE HEALTH KIOSK</text>
+  <text x="400" y="80" font-family="Arial, sans-serif" font-size="16" fill="#a7f3d0" text-anchor="middle">OFFICIAL DIAGNOSTIC &amp; PRESCRIPTION REPORT</text>
+
+  <!-- Document Metadata -->
+  <rect x="40" y="130" width="720" height="120" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="60" y="165" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#0f172a">PATIENT NAME: JOSEPH VIJAY</text>
+  <text x="60" y="195" font-family="Arial, sans-serif" font-size="14" fill="#334155">AGE / GENDER: 45 Yrs / Male</text>
+  <text x="60" y="225" font-family="Arial, sans-serif" font-size="14" fill="#334155">ABHA ID: 91-8823-4412-0091</text>
+  
+  <text x="450" y="165" font-family="Arial, sans-serif" font-size="14" fill="#334155">REPORT DATE: 15-SEP-2026</text>
+  <text x="450" y="195" font-family="Arial, sans-serif" font-size="14" fill="#334155">KIOSK ID: KIOSK-TN-CHE-042</text>
+  <text x="450" y="225" font-family="Arial, sans-serif" font-size="14" fill="#334155">DEPARTMENT: AYUSH &amp; General OPD</text>
+
+  <!-- Section 1: Lab Diagnostic Results -->
+  <text x="40" y="285" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#047857">1. LAB DIAGNOSTIC METRICS</text>
+  <line x1="40" y1="295" x2="760" y2="295" stroke="#047857" stroke-width="2"/>
+
+  <!-- Table Header -->
+  <rect x="40" y="310" width="720" height="35" fill="#e2e8f0"/>
+  <text x="55" y="333" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b">TEST PARAMETER</text>
+  <text x="320" y="333" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b">RESULT</text>
+  <text x="450" y="333" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b">REFERENCE RANGE</text>
+  <text x="640" y="333" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#1e293b">STATUS</text>
+
+  <!-- Row 1 -->
+  <text x="55" y="375" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Hemoglobin (Hb)</text>
+  <text x="320" y="375" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#dc2626">11.2 g/dL</text>
+  <text x="450" y="375" font-family="Arial, sans-serif" font-size="14" fill="#475569">12.0 - 17.5 g/dL</text>
+  <text x="640" y="375" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#dc2626">LOW (Anemia)</text>
+  <line x1="40" y1="395" x2="760" y2="395" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Row 2 -->
+  <text x="55" y="425" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Fasting Blood Sugar (FBS)</text>
+  <text x="320" y="425" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#dc2626">126 mg/dL</text>
+  <text x="450" y="425" font-family="Arial, sans-serif" font-size="14" fill="#475569">70 - 100 mg/dL</text>
+  <text x="640" y="425" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#dc2626">HIGH (Glycemic)</text>
+  <line x1="40" y1="495" x2="760" y2="495" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Row 3 -->
+  <text x="55" y="475" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Total WBC Count</text>
+  <text x="320" y="475" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#16a34a">7,800 /µL</text>
+  <text x="450" y="475" font-family="Arial, sans-serif" font-size="14" fill="#475569">4,000 - 11,000 /µL</text>
+  <text x="640" y="475" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#16a34a">NORMAL</text>
+  <line x1="40" y1="495" x2="760" y2="495" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Section 2: Prescribed Medications -->
+  <text x="40" y="540" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#047857">2. PRESCRIBED RX MEDICATIONS</text>
+  <line x1="40" y1="550" x2="760" y2="550" stroke="#047857" stroke-width="2"/>
+
+  <rect x="40" y="565" width="720" height="120" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="60" y="595" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#14532d">1. Amlodipine 5mg — Take 1 tablet daily in the morning (BP Control)</text>
+  <text x="60" y="630" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#14532d">2. Metformin 500mg — Take 1 tablet twice daily after meals (Sugar Control)</text>
+  <text x="60" y="665" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#14532d">3. Pantoprazole 40mg — Take 1 tablet before breakfast (Antacid)</text>
+
+  <!-- Section 3: Clinical Impression -->
+  <text x="40" y="720" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#047857">3. DOCTOR CLINICAL IMPRESSION &amp; RECOMMENDATIONS</text>
+  <line x1="40" y1="730" x2="760" y2="730" stroke="#047857" stroke-width="2"/>
+
+  <rect x="40" y="745" width="720" height="110" rx="8" fill="#fffbebe" stroke="#fde68a" stroke-width="1.5"/>
+  <text x="60" y="775" font-family="Arial, sans-serif" font-size="14" fill="#78350f">Primary Diagnosis: Essential Hypertension &amp; Early Glycemic Impairment with Mild Anemia.</text>
+  <text x="60" y="805" font-family="Arial, sans-serif" font-size="14" fill="#78350f">Advice: Reduce sodium and refined sugar intake. 30 minutes daily walking.</text>
+  <text x="60" y="835" font-family="Arial, sans-serif" font-size="14" fill="#78350f">AYUSH Integration: Recommended Triphala and Punarnava for natural wellness.</text>
+
+  <!-- Footer Stamp & Signature -->
+  <line x1="40" y1="885" x2="760" y2="885" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="60" y="930" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#0f172a">Verified By: Dr. R. Sundaram, MD</text>
+  <text x="60" y="950" font-family="Arial, sans-serif" font-size="12" fill="#64748b">Reg No: TN-PMC-88219 | AYUSH State Medical Officer</text>
+
+  <rect x="580" y="900" width="180" height="60" rx="6" fill="#047857" opacity="0.1"/>
+  <rect x="580" y="900" width="180" height="60" rx="6" stroke="#047857" stroke-width="1.5" fill="none"/>
+  <text x="670" y="935" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#047857" text-anchor="middle">OFFICIAL DIGITIZED STAMP</text>
+</svg>

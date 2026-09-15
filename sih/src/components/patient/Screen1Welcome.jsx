@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { getTranslation } from '../../data/translations';
-import { MEDICAL_IMAGES } from '../../data/images';
+import { MEDICAL_IMAGES, FALLBACK_HOSPITAL_SVG } from '../../data/images';
 import { motion } from 'framer-motion';
 import { Sparkles, Check, ArrowRight, Mic } from 'lucide-react';
 
@@ -45,9 +45,10 @@ export const Screen1Welcome = () => {
         {/* Clinical Imagery Banner */}
         <div className="max-w-lg mx-auto mb-6 rounded-xl overflow-hidden shadow-xs border border-stone-200">
           <img
-            src={MEDICAL_IMAGES.hero}
+            src={MEDICAL_IMAGES?.hero || FALLBACK_HOSPITAL_SVG}
             alt="Hospital Intake Kiosk"
             className="w-full h-36 object-cover"
+            onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_HOSPITAL_SVG; }}
           />
         </div>
 

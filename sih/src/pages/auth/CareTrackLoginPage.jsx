@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { sendRealSmsOtp, verifyRealSmsOtp } from '../../services/firebaseAuth';
-import { Eye, EyeOff, ArrowRight, CheckCircle2, Phone, ShieldCheck, KeyRound } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, CheckCircle2, Phone, KeyRound } from 'lucide-react';
 
-import { MEDICAL_IMAGES, ROLE_AVATARS } from '../../data/images';
+import { MEDICAL_IMAGES, ROLE_AVATARS, FALLBACK_HOSPITAL_SVG } from '../../data/images';
 
 export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
   const { setViewMode, setAuthenticatedUser, updateIdentity, resetSession } = usePatientSession();
@@ -13,26 +13,14 @@ export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
   const [password, setPassword] = useState("123456");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Dynamic image mapping based on selected role
-  const getRoleBgImage = () => {
-    switch (role) {
-      case 'admin': return MEDICAL_IMAGES.cmcellHero;
-      case 'doctor': return MEDICAL_IMAGES.doctorWorkspace;
-      case 'nurse': return MEDICAL_IMAGES.nurseStation;
-      case 'receptionist': return MEDICAL_IMAGES.receptionDesk;
-      case 'patient': return MEDICAL_IMAGES.digitalKiosk;
-      default: return MEDICAL_IMAGES.hero;
-    }
-  };
-
   const getRoleAvatar = () => {
     switch (role) {
-      case 'admin': return ROLE_AVATARS.admin;
-      case 'doctor': return ROLE_AVATARS.doctor1;
-      case 'nurse': return ROLE_AVATARS.nurse1;
-      case 'receptionist': return ROLE_AVATARS.receptionist1;
-      case 'patient': return ROLE_AVATARS.patientMale1;
-      default: return ROLE_AVATARS.admin;
+      case 'admin': return ROLE_AVATARS?.admin || FALLBACK_HOSPITAL_SVG;
+      case 'doctor': return ROLE_AVATARS?.doctor1 || FALLBACK_HOSPITAL_SVG;
+      case 'nurse': return ROLE_AVATARS?.nurse1 || FALLBACK_HOSPITAL_SVG;
+      case 'receptionist': return ROLE_AVATARS?.receptionist1 || FALLBACK_HOSPITAL_SVG;
+      case 'patient': return ROLE_AVATARS?.patientMale1 || FALLBACK_HOSPITAL_SVG;
+      default: return ROLE_AVATARS?.admin || FALLBACK_HOSPITAL_SVG;
     }
   };
 
@@ -127,37 +115,102 @@ export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
     onLoginSuccess && onLoginSuccess('patient');
   };
 
+  const loginSlides = [
+    {
+      image: MEDICAL_IMAGES?.loginSlide1 || FALLBACK_HOSPITAL_SVG,
+      title: "Be Healthy & Preventative Care",
+      subtitle: "Comprehensive health monitoring, heart wellness, and AI clinical triage."
+    },
+    {
+      image: MEDICAL_IMAGES?.loginSlide2 || FALLBACK_HOSPITAL_SVG,
+      title: "Dedicated Clinical Healthcare Team",
+      subtitle: "Integrated Doctor Workstation, Nurse Triage, and OPD Queue."
+    },
+    {
+      image: MEDICAL_IMAGES?.loginSlide3 || FALLBACK_HOSPITAL_SVG,
+      title: "Digital Doctor & Tele-Health Network",
+      subtitle: "State-of-the-art diagnostic imaging and ABDM Health Cloud EHR."
+    }
+  ];
+
+  const [activeSlideIdx, setActiveSlideIdx] = useState(0);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlideIdx((prev) => (prev + 1) % loginSlides.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [loginSlides.length]);
+
   return (
     <div className="min-h-screen bg-stone-900 text-white flex items-center justify-center p-4 pt-10 md:p-8 font-sans">
       <div className="max-w-5xl w-full bg-stone-950 border border-stone-800 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
-        {/* LEFT COLUMN: MediKiosk Hospital Visual with Dynamic Internet Image */}
-        <div className="md:col-span-6 relative p-8 md:p-10 flex flex-col justify-between bg-cover bg-center overflow-hidden transition-all duration-700"
-             style={{ backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.3)), url('${getRoleBgImage()}')` }}>
-          <div>
+        {/* LEFT COLUMN: Automatic 3-Image Sliding Carousel Visual */}
+        <div className="md:col-span-6 relative p-8 md:p-10 flex flex-col justify-between overflow-hidden transition-all duration-700 min-h-[400px]">
+          {/* Animated Background Images */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSlideIdx}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0 bg-cover bg-center z-0"
+              style={{
+                backgroundImage: `linear-gradient(to top, rgba(12, 10, 9, 0.92), rgba(12, 10, 9, 0.4)), url('${loginSlides[activeSlideIdx].image}')`
+              }}
+            />
+          </AnimatePresence>
+
+          <div className="relative z-10">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-lg shadow-md">
                 MK
               </div>
               <span className="font-extrabold tracking-wider text-sm uppercase text-emerald-400">MediKiosk Portal</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-6 tracking-tight">
-              Unified Healthcare & Doctor Workstation
-            </h1>
-            <p className="text-stone-300 text-xs mt-3 leading-relaxed">
-              Integrated AI Clinical Intake, Doctor Station EHR, Nurse Triage, and ABDM Patient Portal with SMS OTP Authentication.
-            </p>
+            
+            <motion.div
+              key={`text-${activeSlideIdx}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-6 tracking-tight">
+                {loginSlides[activeSlideIdx].title}
+              </h1>
+              <p className="text-stone-300 text-xs mt-3 leading-relaxed">
+                {loginSlides[activeSlideIdx].subtitle}
+              </p>
+            </motion.div>
           </div>
 
-          {/* Active Role Preview Card with Avatar Image */}
-          <div className="p-4 rounded-2xl bg-stone-900/85 backdrop-blur-md border border-stone-700/60 flex items-center gap-3.5 shadow-xl">
-            <img src={getRoleAvatar()} alt="Role Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-emerald-400 shadow-md" />
-            <div>
-              <div className="text-xs font-extrabold text-white uppercase tracking-wider">
-                {role === 'admin' ? 'CMCELL Operational Desk' : role === 'doctor' ? 'Doctor OPD Workstation' : role === 'nurse' ? 'Nurse Intervention Desk' : role === 'receptionist' ? 'Reception Counter Desk' : 'Patient Portal'}
+          <div className="relative z-10 space-y-4">
+            {/* Auto Carousel Indicator Dots */}
+            <div className="flex items-center gap-2 mb-2">
+              {loginSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSlideIdx(idx)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    activeSlideIdx === idx ? 'w-8 bg-emerald-400' : 'w-2 bg-stone-600 hover:bg-stone-400'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Active Role Preview Card with Avatar Image */}
+            <div className="p-4 rounded-2xl bg-stone-900/85 backdrop-blur-md border border-stone-700/60 flex items-center gap-3.5 shadow-xl">
+              <img src={getRoleAvatar()} alt="Role Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-emerald-400 shadow-md" />
+              <div>
+                <div className="text-xs font-extrabold text-white uppercase tracking-wider">
+                  {role === 'admin' ? 'AYUSH Operational Desk' : role === 'doctor' ? 'Doctor OPD Workstation' : role === 'nurse' ? 'Nurse Intervention Desk' : role === 'receptionist' ? 'Reception Counter Desk' : 'Patient Portal'}
+                </div>
+                <p className="text-[11px] text-emerald-400 font-medium">
+                  Active Operational Access
+                </p>
               </div>
-              <p className="text-[11px] text-emerald-400 font-medium">
-                Active Operational Access
-              </p>
             </div>
           </div>
         </div>
@@ -180,7 +233,7 @@ export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
                   onChange={handleRoleChange}
                   className="w-full p-3 bg-stone-900 border border-stone-700 rounded-xl text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <option value="admin">CMCELL Operational Desk</option>
+                  <option value="admin">AYUSH Operational Desk</option>
                   <option value="doctor">Doctor OPD Workstation</option>
                   <option value="nurse">Nurse Intervention Desk</option>
                   <option value="receptionist">Reception Counter Desk</option>
@@ -189,30 +242,30 @@ export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
               </div>
             </div>
 
-            {/* FORM CONDITIONAL RENDERING */}
+            {/* Staff Username/Password Login Form */}
             {role !== 'patient' ? (
-              /* Staff Login Form */
               <form onSubmit={handleStaffLogin} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Staff Username *</label>
+                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Username / ID</label>
                   <input
                     type="text"
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full p-3 bg-stone-900 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+                    placeholder="Enter Staff ID..."
+                    className="w-full p-3 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Password *</label>
+                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-3 bg-stone-900 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 pr-10 font-mono"
+                      className="w-full p-3 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 pr-10"
                     />
                     <button
                       type="button"
@@ -228,7 +281,7 @@ export const CareTrackLoginPage = ({ onNavigateRegister, onLoginSuccess }) => {
                   type="submit"
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition text-xs flex items-center justify-center gap-2"
                 >
-                  Sign in to {role === 'admin' ? 'CMCELL' : role.toUpperCase()} Portal <ArrowRight className="w-4 h-4" />
+                  Sign in to {role === 'admin' ? 'AYUSH' : role.toUpperCase()} Portal <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
             ) : (

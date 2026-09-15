@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { sendRealSmsOtp, verifyRealSmsOtp } from '../../services/firebaseAuth';
-import { ShieldCheck, Lock, CheckCircle2, User, KeyRound } from 'lucide-react';
+import { ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 
 export const AadhaarAuthModal = ({ isOpen, onClose }) => {
   const { setAuthenticatedUser, updateIdentity } = usePatientSession();
-  const [step, setStep] = useState('aadhaar'); // 'aadhaar' | 'otp' | 'register'
+  const [step, setStep] = useState('aadhaar'); // 'aadhaar' | 'otp'
   const [aadhaarNum, setAadhaarNum] = useState("");
   const [otpVal, setOtpVal] = useState("");
-  const [regName, setRegName] = useState("");
-  const [regAge, setRegAge] = useState("");
-  const [regGender, setRegGender] = useState("Male");
   const [confirmationResult, setConfirmationResult] = useState(null);
 
   if (!isOpen) return null;
@@ -42,9 +39,9 @@ export const AadhaarAuthModal = ({ isOpen, onClose }) => {
     }
     const userProfile = {
       aadhaar: aadhaarNum,
-      name: regName || "JOSEPH VIJAY",
-      age: regAge || "36",
-      gender: regGender,
+      name: "JOSEPH VIJAY",
+      age: "36",
+      gender: "Male",
       abhaId: `91-${aadhaarNum.slice(-4)}-8291-${aadhaarNum.slice(0, 4)}`,
       authenticatedAt: new Date().toLocaleTimeString()
     };

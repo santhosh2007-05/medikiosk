@@ -140,7 +140,7 @@ export const Screen4ChiefComplaint = () => {
                 updateHistory({ chiefComplaint: e.target.value });
               }}
               placeholder={getTranslation("tapMic", lang)}
-              className="flex-1 px-4 py-3 rounded-xl border border-kiosk-border text-sm focus:outline-none focus:ring-2 focus:ring-kiosk-teal bg-white"
+              className="flex-1 px-4 py-3 rounded-xl border border-stone-300 bg-white text-stone-900 placeholder-stone-500 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600"
             />
             <button
               type="button"

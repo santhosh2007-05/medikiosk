@@ -123,6 +123,33 @@ export const PatientSessionProvider = ({ children }) => {
       ...prev,
       documents: [...prev.documents, doc]
     }));
+
+    // Instantly sync uploaded document to doctor portal queue active patient
+    setDoctorQueue(prevQueue => {
+      if (!prevQueue || prevQueue.length === 0) return prevQueue;
+      return prevQueue.map((patient, idx) => {
+        if (idx === 0 || (session.identity?.token && patient.token === session.identity.token)) {
+          const currentDocs = patient.documents || [];
+          return {
+            ...patient,
+            documents: [doc, ...currentDocs]
+          };
+        }
+        return patient;
+      });
+    });
+
+    // Send async backend sync notification
+    try {
+      fetch("http://localhost:8080/api/patient/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientToken: session.identity?.token || "OPD-101",
+          document: doc
+        })
+      }).catch(() => {});
+    } catch(e) {}
   };
 
   const clearDocuments = () => {
@@ -130,6 +157,16 @@ export const PatientSessionProvider = ({ children }) => {
       ...prev,
       documents: []
     }));
+
+    setDoctorQueue(prevQueue => {
+      if (!prevQueue) return prevQueue;
+      return prevQueue.map((patient, idx) => {
+        if (idx === 0 || (session.identity?.token && patient.token === session.identity.token)) {
+          return { ...patient, documents: [] };
+        }
+        return patient;
+      });
+    });
   };
 
   const updateSummary = (data) => {

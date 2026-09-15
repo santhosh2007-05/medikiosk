@@ -2,7 +2,7 @@ import React from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import {
   Activity, Users, Calendar, Building2, UserPlus, FileSpreadsheet,
-  ShieldCheck, LogOut, X, ChevronRight, LayoutDashboard, Stethoscope, User, UserCheck, HeartHandshake
+  ShieldCheck, LogOut, X
 } from 'lucide-react';
 
 export const AndroidLeftDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) => {
@@ -24,9 +24,9 @@ export const AndroidLeftDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) =
       case 'doctor': return 'DOCTOR ROLE';
       case 'nurse': return 'NURSE ROLE';
       case 'receptionist': return 'RECEPTIONIST ROLE';
-      case 'admin': return 'CMCELL ROLE';
+      case 'admin': return 'AYUSH ROLE';
       case 'kiosk': return 'KIOSK OP INTAKE';
-      default: return 'CMCELL ROLE';
+      default: return 'AYUSH ROLE';
     }
   };
 
@@ -83,10 +83,10 @@ export const AndroidLeftDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) =
             )}
           </div>
 
-          {/* CMCELL COMMAND CENTER Navigation Menu */}
+          {/* AYUSH COMMAND CENTER Navigation Menu */}
           <div className="space-y-1.5 pt-1">
             <div className="text-[10px] uppercase font-mono font-bold text-stone-400 tracking-wider px-1 pb-1">
-              CMCELL COMMAND CENTER
+              AYUSH COMMAND CENTER
             </div>
 
             <button
@@ -98,7 +98,7 @@ export const AndroidLeftDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) =
               }`}
             >
               <Activity className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>CMCELL Command Center</span>
+              <span>AYUSH Command Center</span>
             </button>
 
             <button
@@ -230,7 +230,7 @@ export const AndroidLeftDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) =
             className="w-full p-3 rounded-2xl bg-stone-900 hover:bg-stone-800 text-stone-200 text-xs font-bold flex items-center justify-center gap-2 border border-stone-800 transition"
           >
             <LogOut className="w-4 h-4 text-emerald-400" />
-            <span>Logout CMCELL Desk</span>
+            <span>Logout AYUSH Desk</span>
           </button>
 
           <div className="text-center text-[11px] text-stone-500 font-mono pt-1">

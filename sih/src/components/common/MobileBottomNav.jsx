@@ -8,7 +8,7 @@ export const MobileBottomNav = ({ viewMode, onNavigate }) => {
     { id: 'doctor', label: 'Doctor', path: '/doctor', icon: Stethoscope },
     { id: 'nurse', label: 'Nurse', path: '/nurse', icon: HeartHandshake },
     { id: 'receptionist', label: 'Walk-in OP', path: '/receptionist', icon: UserCheck },
-    { id: 'admin', label: 'CMCELL', path: '/admin', icon: Building2 },
+    { id: 'admin', label: 'AYUSH', path: '/admin', icon: Building2 },
   ];
 
   return (

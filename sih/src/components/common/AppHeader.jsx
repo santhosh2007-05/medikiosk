@@ -96,7 +96,7 @@ export const AppHeader = ({ onOpenSystemModal }) => {
               <button onClick={() => navigateToPortal('/nurse', 'nurse')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'nurse' ? 'bg-emerald-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}>Nurse</button>
               <button onClick={() => navigateToPortal('/receptionist', 'receptionist')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'receptionist' ? 'bg-emerald-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}>Receptionist</button>
               <button onClick={() => navigateToPortal('/doctor', 'doctor')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'doctor' ? 'bg-emerald-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}>Doctor ({doctorQueue.length})</button>
-              <button onClick={() => navigateToPortal('/admin', 'admin')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'admin' ? 'bg-emerald-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}>CMCELL</button>
+              <button onClick={() => navigateToPortal('/admin', 'admin')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'admin' ? 'bg-emerald-600 text-white font-bold' : 'text-stone-300 hover:text-white'}`}>AYUSH</button>
             </div>
 
             <button onClick={onOpenSystemModal} className="p-2 rounded-xl text-stone-400 hover:bg-stone-900 border border-stone-800 hover:text-white transition">

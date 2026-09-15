@@ -3,16 +3,16 @@ import { usePatientSession } from '../../context/PatientSessionContext';
 import { TN_HOSPITALS_BY_DISTRICT, TN_DISTRICTS, getPaginatedHospitals } from '../../data/tnHospitals';
 import { getHospitalRoster, getAllNetworkPatients } from '../../data/hospitalRosterData';
 import { HospitalLocationCard } from '../../components/common/HospitalLocationCard';
-import { MEDICAL_IMAGES, ROLE_AVATARS } from '../../data/images';
+import { ROLE_AVATARS } from '../../data/images';
 import {
   UserPlus, QrCode, Printer, CheckCircle, Clock, ArrowRight, ShieldCheck,
-  LogOut, Building, Activity, FileText, Search, Users, TrendingUp, MapPin,
-  Calendar, AlertTriangle, ChevronLeft, ChevronRight, Eye, ShieldAlert, Sparkles, Filter,
+  LogOut, Building, Activity, FileText, Search, Users, MapPin,
+  Calendar, AlertTriangle, ChevronLeft, ChevronRight,
   Stethoscope, HeartHandshake, UserCheck, Award, Pill, CheckCircle2, BarChart3, X
 } from 'lucide-react';
 
 export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
-  const { doctorQueue, setDoctorQueue, setViewMode, updateIdentity, resetSession, appointments } = usePatientSession();
+  const { doctorQueue, setDoctorQueue, setViewMode, updateIdentity, resetSession } = usePatientSession();
   
   // Navigation active tab: 'dashboard' | 'patients' | 'appointments' | 'hospitals' | 'registration' | 'tokens' | 'audit'
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -919,13 +919,13 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
           <div className="bg-stone-950/80 p-3 rounded-xl border border-stone-800 space-y-1">
             <div className="text-[10px] uppercase font-bold text-stone-400">Logged in as:</div>
             <div className="text-xs font-extrabold text-emerald-400 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" /> CMCELL ROLE
+              <ShieldCheck className="w-4 h-4 text-emerald-400" /> AYUSH ROLE
             </div>
           </div>
 
           {/* Portal Sub-heading */}
           <div className="px-1 text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-            CMCELL Command Center
+            AYUSH Command Center
           </div>
 
           {/* Navigation Links */}
@@ -936,7 +936,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
                 activeTab === 'dashboard' ? 'bg-emerald-600 text-white shadow-md font-bold' : 'text-stone-300 hover:bg-stone-800'
               }`}
             >
-              <Activity className="w-4 h-4 text-emerald-400" /> CMCELL Command Center
+              <Activity className="w-4 h-4 text-emerald-400" /> AYUSH Command Center
             </button>
 
             <button
@@ -1019,7 +1019,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
             onClick={() => setViewMode('login')}
             className="w-full p-2.5 rounded-xl bg-stone-800 hover:bg-rose-900/40 text-stone-300 hover:text-rose-400 text-xs font-bold flex items-center justify-center gap-2 border border-stone-700 transition"
           >
-            <LogOut className="w-4 h-4" /> Logout CMCELL Desk
+            <LogOut className="w-4 h-4" /> Logout AYUSH Desk
           </button>
 
           <div className="text-[10px] text-stone-500 font-mono text-center pt-1">
@@ -1060,7 +1060,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
             </div>
 
             <div className="bg-stone-800 px-3 py-1.5 rounded-xl text-stone-200 font-bold border border-stone-700">
-              Role: <strong className="text-emerald-400">CMCELL</strong>
+              Role: <strong className="text-emerald-400">AYUSH</strong>
             </div>
 
             {/* Cardiac Emergency SOS Trigger */}

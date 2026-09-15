@@ -10,7 +10,7 @@ import { ReinterviewModal } from '../../components/doctor/ReinterviewModal';
 import { MEDICAL_IMAGES } from '../../data/images';
 import {
   Stethoscope, Search, Sparkles, FileText, Split, Calendar, Leaf, Code,
-  ShieldCheck, LogOut, Activity, CheckCircle, Clock, Users, UserPlus,
+  ShieldCheck, LogOut, CheckCircle, Users, UserPlus,
   FileSpreadsheet, Settings, HelpCircle, LayoutDashboard, ArrowRight
 } from 'lucide-react';
 
@@ -276,7 +276,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
                 ▸ Nurse
               </button>
               <button onClick={() => setViewMode('admin')} className="p-1.5 rounded-lg bg-stone-950 border border-stone-800 hover:bg-stone-800 text-stone-300 text-left truncate">
-                ▸ CMCELL
+                ▸ AYUSH
               </button>
             </div>
           </div>

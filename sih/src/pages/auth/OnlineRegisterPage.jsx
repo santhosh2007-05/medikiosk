@@ -3,7 +3,7 @@ import { usePatientSession } from '../../context/PatientSessionContext';
 import { TN_DISTRICTS_HOSPITALS } from '../../data/tnHospitals';
 import { HospitalLocationCard } from '../../components/common/HospitalLocationCard';
 import { MEDICAL_IMAGES } from '../../data/images';
-import { Building2, User, Phone, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
+import { User, MapPin, ArrowRight } from 'lucide-react';
 
 export const OnlineRegisterPage = ({ onNavigateLogin }) => {
   const { setAuthenticatedUser, updateIdentity, setViewMode, resetSession, setDoctorQueue } = usePatientSession();

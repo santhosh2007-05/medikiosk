@@ -17,7 +17,7 @@ import { MEDICAL_IMAGES } from '../../data/images';
 import { getTranslation } from '../../data/translations';
 import {
   Calendar, FileText, UploadCloud, ShieldCheck, QrCode, LogOut, PlusCircle,
-  Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, Sparkles, X
+  Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, X
 } from 'lucide-react';
 
 export const PatientDashboardPage = ({ onLogout }) => {
@@ -162,7 +162,7 @@ export const PatientDashboardPage = ({ onLogout }) => {
                 ▸ Doctor
               </button>
               <button onClick={() => setViewMode('admin')} className="p-1.5 rounded-lg bg-stone-950 border border-stone-800 hover:bg-stone-800 text-stone-300 text-left truncate">
-                ▸ CMCELL
+                ▸ AYUSH
               </button>
             </div>
           </div>
