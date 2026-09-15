@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { sendRealSmsOtp, verifyRealSmsOtp } from '../../services/firebaseAuth';
-import { ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Lock, CheckCircle2, X } from 'lucide-react';
 
 export const AadhaarAuthModal = ({ isOpen, onClose }) => {
   const { setAuthenticatedUser, updateIdentity } = usePatientSession();
@@ -66,7 +66,9 @@ export const AadhaarAuthModal = ({ isOpen, onClose }) => {
             <ShieldCheck className="w-5 h-5 text-kiosk-teal" />
             <h3 className="font-bold text-base text-kiosk-text">Aadhaar / ABHA Patient Authentication</h3>
           </div>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-700 text-base">✕</button>
+          <button onClick={onClose} className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {step === 'aadhaar' && (

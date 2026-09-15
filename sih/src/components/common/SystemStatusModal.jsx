@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, CheckCircle2 } from 'lucide-react';
+import { Activity, CheckCircle2, X } from 'lucide-react';
 
 export const SystemStatusModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -12,7 +12,9 @@ export const SystemStatusModal = ({ isOpen, onClose }) => {
             <Activity className="w-5 h-5 text-emerald-600 animate-pulse" />
             <h3 className="font-bold text-base text-kiosk-text">System & AI Pipeline Status</h3>
           </div>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-700 text-base">✕</button>
+          <button onClick={onClose} className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="space-y-3 text-xs">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { MEDICAL_IMAGES, ROLE_AVATARS } from '../../data/images';
+import { getPatientRiskMetrics } from '../../services/aiSummarizer';
 import {
   Activity, CheckCircle, HeartPulse, LogOut, Users, ShieldCheck, UserPlus,
   Calendar, Bell, Settings, HelpCircle, Thermometer
@@ -286,14 +287,17 @@ export const NursePortalPage = ({ onLogout }) => {
                   {doctorQueue.map((patient) => {
                     const isSelected = patient.token === selectedPatientToken;
                     const hasVitals = recordedVitals[patient.token];
+                    const risk = getPatientRiskMetrics(patient);
+                    const isHighRisk = risk.riskLevel === 'HIGH';
+
                     return (
                       <div
                         key={patient.token}
                         onClick={() => setSelectedPatientToken(patient.token)}
                         className={`p-3 rounded-xl border cursor-pointer transition ${
                           isSelected
-                            ? 'border-emerald-500 bg-emerald-950/60 shadow-md'
-                            : 'border-stone-800 hover:border-stone-700 bg-stone-950'
+                            ? (isHighRisk ? 'border-rose-500 bg-rose-950/40 shadow-md' : 'border-emerald-500 bg-emerald-950/60 shadow-md')
+                            : (isHighRisk ? 'border-rose-900/80 hover:border-rose-700 bg-stone-950' : 'border-stone-800 hover:border-stone-700 bg-stone-950')
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -305,6 +309,25 @@ export const NursePortalPage = ({ onLogout }) => {
 
                         <div className="text-[11px] text-stone-400 mt-1">
                           {patient.age}y / {patient.gender} • {patient.hospital?.split(",")[0]}
+                        </div>
+
+                        {/* AI Risk Stratification Badge */}
+                        <div className="mt-2 flex items-center justify-between gap-1 flex-wrap">
+                          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border inline-flex items-center gap-1.5 ${
+                            risk.riskLevel === 'HIGH'
+                              ? 'bg-rose-950 text-rose-300 border-rose-700 shadow-xs font-extrabold'
+                              : (risk.riskLevel === 'MODERATE'
+                                  ? 'bg-amber-950 text-amber-300 border-amber-800'
+                                  : 'bg-emerald-950 text-emerald-300 border-emerald-800')
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              risk.riskLevel === 'HIGH' ? 'bg-rose-400 animate-ping' : (risk.riskLevel === 'MODERATE' ? 'bg-amber-400' : 'bg-emerald-400')
+                            }`} />
+                            {risk.badgeText}
+                          </span>
+                          <span className="text-[10px] text-stone-400 font-mono">
+                            {risk.triagePriority}
+                          </span>
                         </div>
 
                         {hasVitals && (
@@ -508,32 +531,45 @@ export const NursePortalPage = ({ onLogout }) => {
                     <th className="p-4">Token</th>
                     <th className="p-4">Patient Name</th>
                     <th className="p-4">Age / Gender</th>
+                    <th className="p-4">AI Risk Level</th>
                     <th className="p-4">Hospital Location</th>
                     <th className="p-4">Chief Complaint</th>
                     <th className="p-4 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800 text-stone-200">
-                  {doctorQueue.map((p, idx) => (
-                    <tr key={idx} className="hover:bg-stone-800/50 transition">
-                      <td className="p-4 font-mono font-bold text-emerald-400">{p.token}</td>
-                      <td className="p-4 font-bold text-white">{p.name}</td>
-                      <td className="p-4 text-stone-300">{p.age}y / {p.gender}</td>
-                      <td className="p-4 text-stone-300">{p.hospital?.split(",")[0]}</td>
-                      <td className="p-4 text-stone-300 line-clamp-1">{p.chiefComplaint}</td>
-                      <td className="p-4 text-right">
-                        <button
-                          onClick={() => {
-                            setSelectedPatientToken(p.token);
-                            setActiveTab('triage');
-                          }}
-                          className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition"
-                        >
-                          Triage Patient
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {doctorQueue.map((p, idx) => {
+                    const risk = getPatientRiskMetrics(p);
+                    return (
+                      <tr key={idx} className="hover:bg-stone-800/50 transition">
+                        <td className="p-4 font-mono font-bold text-emerald-400">{p.token}</td>
+                        <td className="p-4 font-bold text-white">{p.name}</td>
+                        <td className="p-4 text-stone-300">{p.age}y / {p.gender}</td>
+                        <td className="p-4">
+                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold border ${
+                            risk.riskLevel === 'HIGH'
+                              ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
+                              : (risk.riskLevel === 'MODERATE' ? 'bg-amber-950 text-amber-300 border-amber-800' : 'bg-emerald-950 text-emerald-300 border-emerald-800')
+                          }`}>
+                            {risk.badgeText}
+                          </span>
+                        </td>
+                        <td className="p-4 text-stone-300">{p.hospital?.split(",")[0]}</td>
+                        <td className="p-4 text-stone-300 line-clamp-1">{p.chiefComplaint}</td>
+                        <td className="p-4 text-right">
+                          <button
+                            onClick={() => {
+                              setSelectedPatientToken(p.token);
+                              setActiveTab('triage');
+                            }}
+                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition"
+                          >
+                            Triage Patient
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

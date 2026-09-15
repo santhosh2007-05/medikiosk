@@ -91,8 +91,8 @@ export const CookieConsentModal = () => {
                 <Cookie className="w-5 h-5 text-emerald-600" />
                 <span>DPDP Act Cookie & Privacy Settings</span>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-stone-400 hover:text-stone-700 font-bold px-2">
-                ✕
+              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition cursor-pointer">
+                <X className="w-5 h-5" />
               </button>
             </div>
 

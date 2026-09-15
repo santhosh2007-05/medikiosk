@@ -4,6 +4,7 @@ import { TN_HOSPITALS_BY_DISTRICT, TN_DISTRICTS, getPaginatedHospitals } from '.
 import { getHospitalRoster, getAllNetworkPatients } from '../../data/hospitalRosterData';
 import { HospitalLocationCard } from '../../components/common/HospitalLocationCard';
 import { ROLE_AVATARS } from '../../data/images';
+import { getPatientRiskMetrics } from '../../services/aiSummarizer';
 import {
   UserPlus, QrCode, Printer, CheckCircle, Clock, ArrowRight, ShieldCheck,
   LogOut, Building, Activity, FileText, Search, Users, MapPin,
@@ -206,7 +207,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
         doctors: prev.doctors.map(d => d.id === docId ? { ...d, promoted: true } : d)
       }));
     }
-    alert(`🏆 PROMOTION AWARDED! Dr. ${docName} has been officially granted Senior Specialist Distinction & Promotion by Executive Admin!`);
+    alert(`[EXECUTIVE DISTINCTION]: Dr. ${docName} has been officially granted Senior Specialist Distinction & Promotion by Executive Admin!`);
   };
 
   // TN Hospitals Pagination & Sorting State
@@ -332,7 +333,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
 
   const handleTriggerSOS = () => {
     setSosTriggered(true);
-    alert("🚨 CARDIAC EMERGENCY SOS ALARM TRIGGERED! Hospital Triage Team notified.");
+    alert("[CARDIAC EMERGENCY SOS]: Emergency triage alert triggered! Hospital Triage Team notified.");
   };
 
   // DEDICATED HOSPITAL CONTROL VIEW WITH FULL LEFT SIDEBAR
@@ -1316,6 +1317,7 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
                       <th className="p-3">Patient ID</th>
                       <th className="p-3">Patient Name</th>
                       <th className="p-3">Age / Gender</th>
+                      <th className="p-3">AI Risk Level</th>
                       <th className="p-3">Demographics</th>
                       <th className="p-3">Hospital Facility</th>
                       <th className="p-3">Diagnosis & Specialty</th>
@@ -1324,32 +1326,44 @@ export const AdminOfflineOpPage = ({ onStartKioskForPatient, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-800">
-                    {paginatedPatientsList.map(p => (
-                      <tr key={p.id} className="hover:bg-stone-950/60 transition">
-                        <td className="p-3 font-mono font-bold text-emerald-400">{p.token}</td>
-                        <td className="p-3 font-mono text-stone-400">{p.id}</td>
-                        <td className="p-3 font-bold text-white">{p.name}</td>
-                        <td className="p-3 text-stone-300">{p.age} yrs • {p.gender}</td>
-                        <td className="p-3 text-stone-400">{p.category}</td>
-                        <td className="p-3 text-stone-300 font-medium">
-                          <div>{p.hospital}</div>
-                          <div className="text-[10px] text-emerald-400">{p.district} District</div>
-                        </td>
-                        <td className="p-3">
-                          <div className="font-semibold text-stone-200">{p.diagnosis}</div>
-                          <div className="text-[10px] text-emerald-400">{p.diseaseCategory}</div>
-                        </td>
-                        <td className="p-3 font-mono text-stone-300 text-[11px]">{p.tablets}</td>
-                        <td className="p-3 text-right">
-                          <button
-                            onClick={() => handleStartKioskIntake(p)}
-                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-[10px]"
-                          >
-                            Launch Kiosk
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {paginatedPatientsList.map(p => {
+                      const risk = getPatientRiskMetrics(p);
+                      return (
+                        <tr key={p.id} className="hover:bg-stone-950/60 transition">
+                          <td className="p-3 font-mono font-bold text-emerald-400">{p.token}</td>
+                          <td className="p-3 font-mono text-stone-400">{p.id}</td>
+                          <td className="p-3 font-bold text-white">{p.name}</td>
+                          <td className="p-3 text-stone-300">{p.age} yrs • {p.gender}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                              risk.riskLevel === 'HIGH'
+                                ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
+                                : (risk.riskLevel === 'MODERATE' ? 'bg-amber-950 text-amber-300 border-amber-800' : 'bg-emerald-950 text-emerald-300 border-emerald-800')
+                            }`}>
+                              {risk.badgeText}
+                            </span>
+                          </td>
+                          <td className="p-3 text-stone-400">{p.category}</td>
+                          <td className="p-3 text-stone-300 font-medium">
+                            <div>{p.hospital}</div>
+                            <div className="text-[10px] text-emerald-400">{p.district} District</div>
+                          </td>
+                          <td className="p-3">
+                            <div className="font-semibold text-stone-200">{p.diagnosis}</div>
+                            <div className="text-[10px] text-emerald-400">{p.diseaseCategory}</div>
+                          </td>
+                          <td className="p-3 font-mono text-stone-300 text-[11px]">{p.tablets}</td>
+                          <td className="p-3 text-right">
+                            <button
+                              onClick={() => handleStartKioskIntake(p)}
+                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-[10px]"
+                            >
+                              Launch Kiosk
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

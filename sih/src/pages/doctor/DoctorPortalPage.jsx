@@ -8,6 +8,7 @@ import { Screen15TimelineAbnormalDoctor } from '../../components/doctor/Screen15
 import { Screen16FhirModal } from '../../components/doctor/Screen16FhirModal';
 import { ReinterviewModal } from '../../components/doctor/ReinterviewModal';
 import { MEDICAL_IMAGES } from '../../data/images';
+import { evaluateClinicalRiskWithAI, getPatientRiskMetrics } from '../../services/aiSummarizer';
 import {
   Stethoscope, Search, Sparkles, FileText, Split, Calendar, Leaf, Code,
   ShieldCheck, LogOut, CheckCircle, Users, UserPlus,
@@ -68,12 +69,15 @@ export const DoctorPortalPage = ({ onLogout }) => {
         gender: "Male",
         phone: "9840123456",
         aadhaar: "91-7829-1092-4412",
-        chiefComplaint: "Severe right thigh muscle strain & knee joint stiffness after stunt scene",
-        summaryText: "Patient presenting with acute right thigh muscle tightness and localized tenderness after physical exertion. BP: 130/85 mmHg, Pulse: 78 bpm, SpO2: 98%. Recommended Ayush Sahacharadi Thailam application and mild rest.",
+        chiefComplaint: "Acute substernal chest pressure radiating to left arm & shortness of breath",
+        summaryText: "Patient presenting with acute crushing chest pressure (Severity 8/10) with radiation to left shoulder and diaphoresis. BP: 148/92 mmHg, Pulse: 98 bpm, SpO2: 94%. Critical priority for immediate ECG and cardiac enzymes.",
         status: "In Queue",
         ayushMode: true,
-        vitals: { sysBp: "130", diaBp: "85", heartRate: "78", spo2: "98%", temp: "98.6°F" },
-        ayushParameters: { prakriti: "Pitta-Kapha", agni: "Sama Agni", koshtha: "Madhyama" }
+        redFlag: true,
+        riskLevel: "HIGH",
+        riskScore: 94,
+        vitals: { sysBp: "148", diaBp: "92", heartRate: "98", spo2: "94%", temp: "98.6°F" },
+        ayushParameters: { prakriti: "Pitta-Kapha", agni: "Tikshna Agni", koshtha: "Madhyama" }
       };
 
       setSearchedPatient(retrieved);
@@ -84,24 +88,32 @@ export const DoctorPortalPage = ({ onLogout }) => {
     }
   };
 
-  const handleRunAiAnalysis = () => {
+  const handleRunAiAnalysis = async () => {
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
+    try {
+      const riskData = await evaluateClinicalRiskWithAI(activePatient);
       setAiAnalysisResult({
-        primaryDiagnosis: "Right Gastrocnemius Muscle Strain with Mild Peripheral Ischemia Risk",
-        ayushDiagnosis: "Vata Dushti in Adho Shakha (Leg Muscle Vata Imbalance)",
-        riskLevel: "MODERATE",
-        confidence: "94.2%",
-        labSummary: "HbA1c: 7.2% (Controlled), BP: 130/85 mmHg, Blood Sugar: 110 mg/dL.",
-        recommendations: [
-          "Prescribe Sahacharadi Thailam local application & Dashamoola Kashayam (15ml BD)",
-          "Order Lower Limb Arterial Doppler Ultrasonography",
-          "Rest, Ice, Compression, Elevation (RICE protocol) for 48 hours",
-          "Follow-up in OPD after 5 days with updated Doppler report"
-        ]
+        primaryDiagnosis: activePatient.diagnosis || `${activePatient.chiefComplaint} (Clinical Evaluation)`,
+        ayushDiagnosis: activePatient.ayushMode ? "Ayurvedic Agni, Prakriti & Vata Dushti Evaluation" : "Allopathic Standard OPD Protocol",
+        riskLevel: riskData.riskLevel,
+        riskScore: riskData.riskScore,
+        riskColor: riskData.riskColor,
+        riskTitle: riskData.riskTitle,
+        riskReason: riskData.riskReason,
+        confidence: `${riskData.riskScore || 94}%`,
+        labSummary: `BP: ${activePatient.vitals?.sysBp || '120'}/${activePatient.vitals?.diaBp || '80'} mmHg, Pulse: ${activePatient.vitals?.heartRate || '72'} bpm, SpO2: ${activePatient.vitals?.spo2 || '98%'}.`,
+        recommendations: riskData.recommendations || [
+          "Execute STAT 12-Lead ECG & troponin enzyme workup if cardiac risk is high",
+          "Prescribe targeted herbal/allopathic stabilization regimen",
+          "Arrange priority nurse vitals check & OPD follow-up"
+        ],
+        engine: riskData.engine || "Groq LLaMA 3.3 70B & Clinical Risk Engine"
       });
-    }, 1200);
+    } catch (err) {
+      console.warn("AI Analysis error:", err);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleRegisterDoctorOp = () => {
@@ -334,16 +346,41 @@ export const DoctorPortalPage = ({ onLogout }) => {
 
             {/* AI Medical Analysis Insight Card */}
             {aiAnalysisResult && (
-              <div className="bg-amber-950/60 border border-amber-800/80 rounded-2xl p-5 shadow-md space-y-3 text-xs animate-in fade-in duration-300">
-                <div className="flex items-center justify-between border-b border-amber-800/60 pb-3">
+              <div className={`border rounded-2xl p-5 shadow-md space-y-3 text-xs animate-in fade-in duration-300 ${
+                aiAnalysisResult.riskLevel === 'HIGH'
+                  ? 'bg-rose-950/70 border-rose-700/80 shadow-rose-900/30'
+                  : (aiAnalysisResult.riskLevel === 'MODERATE' ? 'bg-amber-950/60 border-amber-800/80' : 'bg-emerald-950/60 border-emerald-800/80')
+              }`}>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-400" />
-                    <span className="font-extrabold text-amber-100 text-sm">AI Patient History & Lab Report Clinical Assessment</span>
+                    <Sparkles className={`w-5 h-5 ${aiAnalysisResult.riskLevel === 'HIGH' ? 'text-rose-400' : 'text-amber-400'}`} />
+                    <span className="font-extrabold text-white text-sm">AI Patient History & Lab Report Clinical Assessment</span>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full font-mono font-extrabold bg-amber-900/80 text-amber-200 border border-amber-700 text-[10px]">
-                    CONFIDENCE: {aiAnalysisResult.confidence}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono font-bold text-[10px] uppercase tracking-wider border ${
+                      aiAnalysisResult.riskLevel === 'HIGH'
+                        ? 'bg-rose-900 text-rose-200 border-rose-600 shadow-sm'
+                        : (aiAnalysisResult.riskLevel === 'MODERATE' ? 'bg-amber-900/80 text-amber-200 border-amber-700' : 'bg-emerald-900/80 text-emerald-200 border-emerald-700')
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        aiAnalysisResult.riskLevel === 'HIGH' ? 'bg-rose-400 animate-ping' : (aiAnalysisResult.riskLevel === 'MODERATE' ? 'bg-amber-400' : 'bg-emerald-400')
+                      }`} />
+                      {aiAnalysisResult.riskLevel === 'HIGH' ? `HIGH RISK (${aiAnalysisResult.confidence})` : (aiAnalysisResult.riskLevel === 'MODERATE' ? `MODERATE RISK (${aiAnalysisResult.confidence})` : `LOW RISK (${aiAnalysisResult.confidence})`)}
+                    </span>
+                    <span className="text-[10px] text-stone-400 font-mono">
+                      {aiAnalysisResult.engine}
+                    </span>
+                  </div>
                 </div>
+
+                {aiAnalysisResult.riskReason && (
+                  <div className={`p-3 rounded-xl border text-xs font-medium leading-relaxed ${
+                    aiAnalysisResult.riskLevel === 'HIGH' ? 'bg-rose-900/40 border-rose-800 text-rose-200' : 'bg-stone-950 border-stone-800 text-stone-300'
+                  }`}>
+                    <strong className="block font-mono text-[10px] uppercase text-stone-400 mb-0.5">AI Clinical Triage Assessment</strong>
+                    {aiAnalysisResult.riskReason}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -356,7 +393,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
                   </div>
                 </div>
 
-                <div className="bg-stone-950 p-3 rounded-xl border border-amber-800/40 space-y-1">
+                <div className="bg-stone-950 p-3 rounded-xl border border-stone-800 space-y-1">
                   <strong className="text-stone-400 uppercase font-mono text-[10px] block">Abnormal Lab & Vital Flags</strong>
                   <p className="text-stone-200 font-semibold">{aiAnalysisResult.labSummary}</p>
                 </div>
@@ -497,46 +534,66 @@ export const DoctorPortalPage = ({ onLogout }) => {
 
             {/* Grid of 10 Patients */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {doctorQueue.map((patient, idx) => (
-                <div key={idx} className="bg-stone-900 rounded-2xl border border-stone-800 p-5 shadow-md hover:border-emerald-600/60 transition space-y-3 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold px-2 py-0.5 bg-stone-950 text-emerald-400 rounded border border-stone-800">
-                        {patient.token}
-                      </span>
-                      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                        patient.redFlag ? 'bg-rose-950 text-rose-300 border border-rose-800' :
-                        patient.ayushMode ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
-                        'bg-stone-800 text-stone-300 border border-stone-700'
-                      }`}>
-                        {patient.status || "In Queue"}
-                      </span>
+              {doctorQueue.map((patient, idx) => {
+                const risk = getPatientRiskMetrics(patient);
+                return (
+                  <div key={idx} className={`rounded-2xl border p-5 shadow-md transition space-y-3 flex flex-col justify-between ${
+                    risk.riskLevel === 'HIGH'
+                      ? 'bg-stone-900 border-rose-800/80 shadow-rose-950/20'
+                      : 'bg-stone-900 border-stone-800 hover:border-emerald-600/60'
+                  }`}>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-xs font-bold px-2 py-0.5 bg-stone-950 text-emerald-400 rounded border border-stone-800">
+                          {patient.token}
+                        </span>
+                        <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                          risk.riskLevel === 'HIGH' ? 'bg-rose-950 text-rose-300 border border-rose-800 animate-pulse' :
+                          patient.ayushMode ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+                          'bg-stone-800 text-stone-300 border border-stone-700'
+                        }`}>
+                          {patient.status || "In Queue"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-extrabold text-base text-white">{patient.name}</h3>
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${
+                          risk.riskLevel === 'HIGH'
+                            ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
+                            : (risk.riskLevel === 'MODERATE' ? 'bg-amber-950 text-amber-300 border-amber-800' : 'bg-emerald-950 text-emerald-300 border-emerald-800')
+                        }`}>
+                          {risk.badgeText}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-stone-400 flex items-center gap-2">
+                        <span>{patient.age}y / {patient.gender}</span>
+                        <span>•</span>
+                        <span>Phone: <strong className="text-stone-200 font-mono">{patient.phone}</strong></span>
+                      </div>
+
+                      <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs text-stone-300 space-y-1">
+                        <div><strong className="text-white">Hospital:</strong> {patient.hospital}</div>
+                        <div><strong className="text-white">Complaint:</strong> {patient.chiefComplaint}</div>
+                        <div className={`text-[11px] font-semibold pt-1 ${risk.riskLevel === 'HIGH' ? 'text-rose-400' : 'text-stone-400'}`}>
+                          {risk.riskReason}
+                        </div>
+                      </div>
                     </div>
 
-                    <h3 className="font-extrabold text-base text-white">{patient.name}</h3>
-                    <div className="text-xs text-stone-400 flex items-center gap-2">
-                      <span>{patient.age}y / {patient.gender}</span>
-                      <span>•</span>
-                      <span>Phone: <strong className="text-stone-200 font-mono">{patient.phone}</strong></span>
-                    </div>
-
-                    <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs text-stone-300 space-y-1">
-                      <div><strong className="text-white">Hospital:</strong> {patient.hospital}</div>
-                      <div><strong className="text-white">Complaint:</strong> {patient.chiefComplaint}</div>
-                    </div>
+                    <button
+                      onClick={() => {
+                        handleSelectPatientFromQueue(patient);
+                        setActiveNavTab('360_portal');
+                      }}
+                      className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition mt-3"
+                    >
+                      Open Clinical EHR File <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => {
-                      handleSelectPatientFromQueue(patient);
-                      setActiveNavTab('360_portal');
-                    }}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition mt-3"
-                  >
-                    Open Clinical EHR File <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

@@ -1,11 +1,20 @@
 import React from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { getTranslation } from '../../data/translations';
-import { CheckCircle2, Stethoscope, RotateCcw } from 'lucide-react';
+import { getPatientRiskMetrics } from '../../services/aiSummarizer';
+import { CheckCircle2, Stethoscope, RotateCcw, Sparkles } from 'lucide-react';
 
 export const Screen10SubmissionComplete = () => {
   const { session, setViewMode, resetSession } = usePatientSession();
   const lang = session.identity.language || 'en-IN';
+
+  const risk = getPatientRiskMetrics({
+    chiefComplaint: session.conversationalHistory.chiefComplaint,
+    hpi: session.conversationalHistory.hpi,
+    documents: session.documents,
+    redFlag: session.conversationalHistory.redFlag,
+    redFlagTriggers: session.conversationalHistory.redFlagTriggers
+  });
 
   return (
     <section className="bg-white border border-kiosk-border rounded-2xl p-8 md:p-12 shadow-xs text-center flex flex-col justify-between flex-1">
@@ -17,6 +26,29 @@ export const Screen10SubmissionComplete = () => {
         <p className="text-sm text-kiosk-muted">
           {getTranslation("submittedSub", lang)}
         </p>
+
+        {/* AI Risk Stratification Badge */}
+        <div className={`p-3.5 rounded-xl border text-left flex items-center justify-between ${
+          risk.riskLevel === 'HIGH'
+            ? 'bg-rose-50 border-rose-300 text-rose-950'
+            : (risk.riskLevel === 'MODERATE' ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-emerald-50 border-emerald-300 text-emerald-950')
+        }`}>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-kiosk-teal shrink-0" />
+            <div>
+              <div className="font-bold text-xs uppercase">AI Triage Stratification</div>
+              <div className="text-[11px] font-medium">{risk.triagePriority}</div>
+            </div>
+          </div>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold ${
+            risk.riskLevel === 'HIGH' ? 'bg-rose-600 text-white' : (risk.riskLevel === 'MODERATE' ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white')
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              risk.riskLevel === 'HIGH' ? 'bg-white animate-ping' : 'bg-white'
+            }`} />
+            {risk.badgeText}
+          </span>
+        </div>
 
         <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-left space-y-2 text-xs">
           <div className="flex justify-between">

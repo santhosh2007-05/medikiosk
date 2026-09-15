@@ -59,7 +59,11 @@ export const Screen8TimelineLabFlags = () => {
                         </div>
                         <div className="text-right font-mono font-bold text-sm">
                           {lab.value} {lab.unit}
-                          {lab.isAbnormal && <span className="block text-[10px]">⚠ Below/Above Range</span>}
+                          {lab.isAbnormal && (
+                            <span className="flex items-center justify-end gap-1 text-[10px] text-rose-600 font-sans font-semibold mt-0.5">
+                              <TriangleAlert className="w-3 h-3 text-rose-600" /> Out of Range
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}

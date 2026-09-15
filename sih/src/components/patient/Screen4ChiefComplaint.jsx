@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { getTranslation } from '../../data/translations';
 import { motion } from 'framer-motion';
-import { Activity, Thermometer, Stethoscope, Mic, ArrowRight, Volume2 } from 'lucide-react';
+import { Activity, Thermometer, Stethoscope, Mic, ArrowRight, Volume2, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 export const Screen4ChiefComplaint = () => {
   const { session, updateHistory, setCurrentStep } = usePatientSession();
@@ -10,6 +10,7 @@ export const Screen4ChiefComplaint = () => {
   const [listening, setListening] = useState(false);
   const [customText, setCustomText] = useState("");
   const [micStatusMsg, setMicStatusMsg] = useState("");
+  const [micStatusType, setMicStatusType] = useState("info"); // 'info' | 'success' | 'warning'
 
   const playVoicePrompt = () => {
     if ('speechSynthesis' in window) {
@@ -23,25 +24,27 @@ export const Screen4ChiefComplaint = () => {
 
   const handleSelectComplaint = (complaintStr) => {
     updateHistory({ chiefComplaint: complaintStr });
-    setCurrentStep(5);
   };
 
   const startVoiceInput = async () => {
-    setMicStatusMsg("");
-    // Request microphone permission explicitly from Android OS / Browser
-    try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-      }
-    } catch (permErr) {
-      console.warn("Microphone permission prompt result:", permErr);
-      setMicStatusMsg("Microphone access requested. If prompted, please tap Allow.");
-    }
-
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setMicStatusMsg("Native voice engine not detected in WebView. You can type symptoms below or tap symptom cards.");
+      setMicStatusMsg("Voice recognition not supported in this browser. Please type symptoms directly.");
+      setMicStatusType("warning");
       return;
+    }
+
+    // Android WebView / Chrome microphone permission handshake
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+      } catch (permErr) {
+        console.warn("Native microphone permission prompt error:", permErr);
+        setMicStatusMsg("Microphone access is required. Please grant audio permission in device settings.");
+        setMicStatusType("warning");
+        return;
+      }
     }
 
     try {
@@ -52,7 +55,8 @@ export const Screen4ChiefComplaint = () => {
 
       recognition.onstart = () => {
         setListening(true);
-        setMicStatusMsg("🎙️ Listening... Speak your symptoms now.");
+        setMicStatusMsg("Listening... Speak your symptoms clearly now.");
+        setMicStatusType("info");
       };
 
       recognition.onresult = (e) => {
@@ -60,7 +64,8 @@ export const Screen4ChiefComplaint = () => {
           const transcript = e.results[0][0].transcript;
           setCustomText(transcript);
           updateHistory({ chiefComplaint: transcript });
-          setMicStatusMsg(`✅ Captured: "${transcript}"`);
+          setMicStatusMsg(`Captured: "${transcript}"`);
+          setMicStatusType("success");
         }
         setListening(false);
       };
@@ -69,11 +74,14 @@ export const Screen4ChiefComplaint = () => {
         console.warn("Speech recognition error:", err);
         setListening(false);
         if (err.error === 'not-allowed') {
-          setMicStatusMsg("⚠️ Microphone permission denied. Please allow microphone in Android App Settings.");
+          setMicStatusMsg("Microphone permission denied. Please allow microphone access in device settings.");
+          setMicStatusType("warning");
         } else if (err.error === 'no-speech') {
-          setMicStatusMsg("ℹ️ No speech detected. Tap mic again to speak.");
+          setMicStatusMsg("No speech detected. Tap mic icon again to speak.");
+          setMicStatusType("info");
         } else {
           setMicStatusMsg(`Voice engine status: ${err.error || 'Offline'}. You can type symptoms or select options.`);
+          setMicStatusType("info");
         }
       };
 
@@ -86,6 +94,7 @@ export const Screen4ChiefComplaint = () => {
       console.error("SpeechRecognition start exception:", e);
       setListening(false);
       setMicStatusMsg("Could not start speech engine. You can type symptoms directly.");
+      setMicStatusType("warning");
     }
   };
 
@@ -197,9 +206,16 @@ export const Screen4ChiefComplaint = () => {
           </div>
 
           {micStatusMsg && (
-            <p className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 mt-2.5">
-              {micStatusMsg}
-            </p>
+            <div className={`flex items-center gap-2 text-xs font-semibold rounded-xl p-3 mt-3 border ${
+              micStatusType === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : (micStatusType === 'warning' ? 'bg-amber-50 text-amber-900 border-amber-200' : 'bg-stone-100 text-stone-700 border-stone-200')
+            }`}>
+              {micStatusType === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+              {micStatusType === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />}
+              {micStatusType === 'info' && <Info className="w-4 h-4 text-stone-600 shrink-0" />}
+              <span>{micStatusMsg}</span>
+            </div>
           )}
         </div>
       </div>

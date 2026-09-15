@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { TN_DISTRICTS, TN_HOSPITALS_BY_DISTRICT } from '../../data/tnHospitals';
 import { HospitalLocationCard } from '../../components/common/HospitalLocationCard';
+import { getPatientRiskMetrics } from '../../services/aiSummarizer';
 import {
   UserPlus, QrCode, Printer, CheckCircle, Clock, ArrowRight, UserCheck,
-  LogOut, Activity, Users, TrendingUp, MapPin
+  LogOut, Activity, Users, TrendingUp, MapPin, Zap
 } from 'lucide-react';
 
 export const ReceptionistPortalPage = ({ onLogout }) => {
@@ -460,29 +461,52 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
                 </div>
 
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1 text-xs">
-                  {registeredTokens.map((item) => (
-                    <div
-                      key={item.token}
-                      className="p-3 bg-stone-950 border border-stone-800 rounded-xl flex items-center justify-between hover:border-emerald-700 transition"
-                    >
-                      <div className="space-y-0.5">
-                        <div className="font-bold text-white flex items-center gap-2">
-                          <span className="px-2 py-0.5 bg-emerald-950 text-emerald-300 font-mono rounded border border-emerald-800 text-[10px]">{item.token}</span>
-                          <span>{item.name}</span>
-                        </div>
-                        <div className="text-stone-400 text-[11px]">
-                          {item.age} yrs • {item.gender} • {item.department}
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => handleStartKioskIntake(item)}
-                        className="px-2.5 py-1.5 bg-stone-900 border border-stone-800 hover:border-emerald-600 text-emerald-400 rounded-lg font-semibold text-[11px] flex items-center gap-1 shadow-2xs"
+                  {registeredTokens.map((item) => {
+                    const risk = getPatientRiskMetrics(item);
+                    const isHighRisk = risk.riskLevel === 'HIGH';
+                    return (
+                      <div
+                        key={item.token}
+                        className={`p-3 bg-stone-950 border rounded-xl flex items-center justify-between transition ${
+                          isHighRisk ? 'border-rose-700 bg-rose-950/20' : 'border-stone-800 hover:border-emerald-700'
+                        }`}
                       >
-                        Start Kiosk
-                      </button>
-                    </div>
-                  ))}
+                        <div className="space-y-1">
+                          <div className="font-bold text-white flex items-center gap-2 flex-wrap">
+                            <span className="px-2 py-0.5 bg-emerald-950 text-emerald-300 font-mono rounded border border-emerald-800 text-[10px]">{item.token}</span>
+                            <span>{item.name}</span>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                              risk.riskLevel === 'HIGH'
+                                ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
+                                : (risk.riskLevel === 'MODERATE' ? 'bg-amber-950 text-amber-300 border-amber-800' : 'bg-emerald-950 text-emerald-300 border-emerald-800')
+                            }`}>
+                              {risk.badgeText}
+                            </span>
+                          </div>
+                          <div className="text-stone-400 text-[11px]">
+                            {item.age} yrs • {item.gender} • {item.department}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleStartKioskIntake(item)}
+                          className={`px-2.5 py-1.5 rounded-lg font-semibold text-[11px] flex items-center gap-1 shadow-2xs border ${
+                            isHighRisk
+                              ? 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500 font-bold'
+                              : 'bg-stone-900 border-stone-800 hover:border-emerald-600 text-emerald-400'
+                          }`}
+                        >
+                          {isHighRisk ? (
+                            <>
+                              <Zap className="w-3 h-3 fill-white" /> Fast-Track
+                            </>
+                          ) : (
+                            "Start Kiosk"
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -547,6 +571,7 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
                       <th className="p-3">Token No</th>
                       <th className="p-3">Patient Name</th>
                       <th className="p-3">Demographics</th>
+                      <th className="p-3">AI Risk Level</th>
                       <th className="p-3">Hospital Facility</th>
                       <th className="p-3">Department</th>
                       <th className="p-3">Issue Time</th>
@@ -555,29 +580,41 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-800 text-stone-200">
-                    {registeredTokens.map(t => (
-                      <tr key={t.token} className="hover:bg-stone-800/50 transition">
-                        <td className="p-3 font-mono font-bold text-emerald-400">{t.token}</td>
-                        <td className="p-3 font-bold text-white">{t.name}</td>
-                        <td className="p-3 text-stone-300">{t.age} yrs • {t.gender}</td>
-                        <td className="p-3 text-stone-200 font-medium">{t.hospital}</td>
-                        <td className="p-3 text-stone-300">{t.department}</td>
-                        <td className="p-3 text-stone-400 font-mono">{t.time}</td>
-                        <td className="p-3">
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                            {t.status}
-                          </span>
-                        </td>
-                        <td className="p-3 text-right">
-                          <button
-                            onClick={() => handleStartKioskIntake(t)}
-                            className="px-2.5 py-1 bg-emerald-600 text-white hover:bg-emerald-500 rounded font-bold text-[10px]"
-                          >
-                            Launch Kiosk
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {registeredTokens.map(t => {
+                      const risk = getPatientRiskMetrics(t);
+                      return (
+                        <tr key={t.token} className="hover:bg-stone-800/50 transition">
+                          <td className="p-3 font-mono font-bold text-emerald-400">{t.token}</td>
+                          <td className="p-3 font-bold text-white">{t.name}</td>
+                          <td className="p-3 text-stone-300">{t.age} yrs • {t.gender}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                              risk.riskLevel === 'HIGH'
+                                ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
+                                : (risk.riskLevel === 'MODERATE' ? 'bg-amber-950 text-amber-300 border-amber-800' : 'bg-emerald-950 text-emerald-300 border-emerald-800')
+                            }`}>
+                              {risk.badgeText}
+                            </span>
+                          </td>
+                          <td className="p-3 text-stone-200 font-medium">{t.hospital}</td>
+                          <td className="p-3 text-stone-300">{t.department}</td>
+                          <td className="p-3 text-stone-400 font-mono">{t.time}</td>
+                          <td className="p-3">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                              {t.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-right">
+                            <button
+                              onClick={() => handleStartKioskIntake(t)}
+                              className="px-2.5 py-1 bg-emerald-600 text-white hover:bg-emerald-500 rounded font-bold text-[10px]"
+                            >
+                              Launch Kiosk
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

@@ -5,7 +5,8 @@ import { summarizeOcrTextWithAI } from '../../services/aiSummarizer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Upload, Camera, FileText, CheckCircle2, ArrowRight, ShieldCheck, 
-  Trash2, Eye, AlertTriangle, FileCode, X, ZoomIn, Check, RefreshCw
+  Trash2, Eye, AlertTriangle, FileCode, X, ZoomIn, Check, RefreshCw,
+  Sparkles, Zap
 } from 'lucide-react';
 import Tesseract from 'tesseract.js';
 
@@ -219,16 +220,16 @@ export const Screen7DocumentUpload = () => {
         isNonMedical = true;
         stage3Status = "failed";
         stage3Detail = "Stage 3 Check Failed: Uploaded image contains Application UI Menu / Portal Sidebar text ('Doctor Role, Caseload, Transport Desk, Settings, Help Center'). It is NOT a clinical medical report.";
-        setStageFailureReason("⚠️ Stage 3 Relevance Check Failed: The uploaded image contains Application UI Menu text ('Doctor Role, Caseload, Transport Desk, Settings, Help Center'). No clinical lab diagnostic metrics or prescriptions were found. Please upload an official medical report or prescription.");
+        setStageFailureReason("Stage 3 Relevance Check Failed: The uploaded image contains Application UI Menu text ('Doctor Role, Caseload, Transport Desk, Settings, Help Center'). No clinical lab diagnostic metrics or prescriptions were found. Please upload an official medical report or prescription.");
       } else if (isNonMedicalTechnical) {
         isNonMedical = true;
         stage3Status = "failed";
         stage3Detail = "Stage 3 Check Failed: Document contains technical/computer science research, not clinical health records.";
-        setStageFailureReason(`⚠️ Stage 3 Relevance Check Failed: Uploaded file "${file.name}" is a technical/computer science paper (IoT/Cloud), not a medical report.`);
+        setStageFailureReason(`Stage 3 Relevance Check Failed: Uploaded file "${file.name}" is a technical/computer science paper (IoT/Cloud), not a medical report.`);
       } else if (isBlankOrRandom && !hasMedicalStructure) {
         stage3Status = "warning";
         stage3Detail = "Low OCR confidence or no medical keywords recognized in screenshot.";
-        setStageFailureReason(`⚠️ Stage 3 Quality Check Notice: Image "${file.name}" has low OCR text clarity or contains non-medical visuals.`);
+        setStageFailureReason(`Stage 3 Quality Check Notice: Image "${file.name}" has low OCR text clarity or contains non-medical visuals.`);
       }
 
       setStage(4);
@@ -390,9 +391,9 @@ export const Screen7DocumentUpload = () => {
           <button
             type="button"
             onClick={processSampleReport}
-            className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-2 rounded-lg shadow-xs transition shrink-0 active:scale-95 flex items-center gap-1"
+            className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-2 rounded-lg shadow-xs transition shrink-0 active:scale-95 flex items-center gap-1.5"
           >
-            ⚡ Test Sample OCR
+            <Zap className="w-3.5 h-3.5 fill-white text-white" /> Test Sample OCR
           </button>
         </div>
 
@@ -592,7 +593,10 @@ export const Screen7DocumentUpload = () => {
                 {/* Groq Llama 3.3 70B AI Summary */}
                 <div className="bg-emerald-950/60 border border-emerald-800/80 p-3.5 rounded-lg text-emerald-100 space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-1">✨ AI Clinical Model Summary:</span>
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                      AI Clinical Model Summary:
+                    </span>
                     <span className="bg-emerald-900/90 text-emerald-300 px-2 py-0.5 rounded text-[9px] font-mono border border-emerald-700">
                       {doc.extracted?.apiStatus || "Groq Llama-3.3 70B Live AI"}
                     </span>
@@ -681,7 +685,10 @@ export const Screen7DocumentUpload = () => {
                 {/* AI Summary in Modal */}
                 <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1">
                   <div className="font-bold text-emerald-900 flex items-center justify-between">
-                    <span>✨ AI Model Clinical Interpretation:</span>
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      AI Model Clinical Interpretation:
+                    </span>
                     <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">
                       {previewModalDoc.extracted?.apiStatus}
                     </span>

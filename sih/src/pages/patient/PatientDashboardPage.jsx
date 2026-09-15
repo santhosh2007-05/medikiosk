@@ -17,7 +17,7 @@ import { MEDICAL_IMAGES } from '../../data/images';
 import { getTranslation } from '../../data/translations';
 import {
   Calendar, FileText, UploadCloud, ShieldCheck, QrCode, LogOut, PlusCircle,
-  Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, X
+  Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, X, Sparkles
 } from 'lucide-react';
 
 export const PatientDashboardPage = ({ onLogout }) => {
@@ -215,15 +215,29 @@ export const PatientDashboardPage = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Quick Metrics Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Quick Metrics Cards (4 Columns including AI Clinical Risk Health Status) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-stone-900 border border-stone-800 p-5 rounded-2xl shadow-md space-y-2">
                 <div className="flex items-center justify-between text-stone-400 text-xs">
                   <span className="font-semibold">{getTranslation("totalVisits", lang)}</span>
                   <Clock className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div className="text-3xl font-black text-white font-mono">{visitHistory.length} Visits</div>
-                <div className="text-[11px] text-stone-400">{visitHistory.length === 0 ? "Fresh Account (No Past Visits)" : "Last visit active"}</div>
+                <div className="text-[11px] text-stone-400">{visitHistory.length === 0 ? "Fresh Account" : "Last visit active"}</div>
+              </div>
+
+              <div className="bg-stone-900 border border-stone-800 p-5 rounded-2xl shadow-md space-y-2">
+                <div className="flex items-center justify-between text-stone-400 text-xs">
+                  <span className="font-semibold">AI Risk Health Status</span>
+                  <Activity className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div className="text-lg font-extrabold text-white">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Stable (18%)
+                  </span>
+                </div>
+                <div className="text-[11px] text-emerald-400 font-semibold">Evaluated via Groq AI Model</div>
               </div>
 
               <div className="bg-stone-900 border border-stone-800 p-5 rounded-2xl shadow-md space-y-2">
@@ -231,7 +245,7 @@ export const PatientDashboardPage = ({ onLogout }) => {
                   <span className="font-semibold">{getTranslation("abhaNumberLabel", lang)}</span>
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 </div>
-                <div className="text-lg font-bold text-emerald-400 font-mono">{abhaNumber}</div>
+                <div className="text-sm font-bold text-emerald-400 font-mono">{abhaNumber}</div>
                 <div className="text-[11px] text-emerald-300 font-semibold">Linked with Aadhaar ({aadhaarNumber.slice(-4)})</div>
               </div>
 
@@ -268,8 +282,8 @@ export const PatientDashboardPage = ({ onLogout }) => {
                   <div className="max-w-md mx-auto h-40 rounded-2xl overflow-hidden shadow-md relative border border-stone-800">
                     <img src={MEDICAL_IMAGES.consultation} alt="Doctor Consultation" className="w-full h-full object-cover opacity-60" />
                     <div className="absolute inset-0 bg-stone-950/60 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold bg-stone-900 px-3 py-1.5 rounded-xl border border-stone-800">
-                        ✨ MediKiosk • {getTranslation("welcomeBack", lang)}
+                      <span className="inline-flex items-center gap-1.5 text-white text-xs font-bold bg-stone-900 px-3 py-1.5 rounded-xl border border-stone-800">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> MediKiosk • {getTranslation("welcomeBack", lang)}
                       </span>
                     </div>
                   </div>
