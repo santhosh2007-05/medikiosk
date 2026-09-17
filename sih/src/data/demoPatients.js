@@ -1,4 +1,5 @@
 // TAMIL ACTORS UNIFIED PATIENT DATASET (10 CONSISTENT RECORDS FOR ALL PANELS)
+import { SAMPLE_REPORTS_LIST } from './sampleReportsData';
 
 export const TAMIL_ACTORS_PATIENTS = [
   {
@@ -25,7 +26,39 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "High probability of Acute Coronary Syndrome (ACS) with radiation to left arm, shortness of breath, and diaphoresis. Requires STAT 12-lead ECG.",
     triagePriority: "Immediate (P1)",
     vitals: { sysBp: "148", diaBp: "92", heartRate: "98", spo2: "94%", temp: "98.6°F" },
-    ayushParameters: { prakriti: "Pitta-Kapha", agni: "Tikshna Agni", koshtha: "Madhyama" }
+    ayushParameters: { prakriti: "Pitta-Kapha", agni: "Tikshna Agni", koshtha: "Madhyama" },
+    documents: [
+      {
+        id: "DOC-101-1",
+        documentType: "Scan / Diagnostic",
+        documentDate: "2026-09-15",
+        fileName: "04_cardiology_12_lead_ecg_report.txt",
+        fileSize: "22.4 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[3].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[3].extracted
+      },
+      {
+        id: "DOC-101-2",
+        documentType: "Lab Report",
+        documentDate: "2026-09-14",
+        fileName: "01_complete_blood_count_cbc_report.txt",
+        fileSize: "18.6 KB",
+        confidenceScore: 98,
+        rawOcrText: SAMPLE_REPORTS_LIST[0].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[0].extracted
+      },
+      {
+        id: "DOC-101-3",
+        documentType: "Discharge Summary",
+        documentDate: "2026-09-15",
+        fileName: "15_emergency_vitals_triage_slip.txt",
+        fileSize: "14.2 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[14].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[14].extracted
+      }
+    ]
   },
   {
     token: "OPD-102",
@@ -51,7 +84,29 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Elevated systolic BP (155 mmHg) in senior patient (73y) requiring blood pressure regulation and regular vitals monitoring.",
     triagePriority: "Urgent (P2)",
     vitals: { sysBp: "155", diaBp: "95", heartRate: "78", spo2: "96%", temp: "98.4°F" },
-    ayushParameters: { prakriti: "Vata-Pitta Combined", agni: "Manda Agni", koshtha: "Krura Koshtha" }
+    ayushParameters: { prakriti: "Vata-Pitta Combined", agni: "Manda Agni", koshtha: "Krura Koshtha" },
+    documents: [
+      {
+        id: "DOC-102-1",
+        documentType: "Lab Report",
+        documentDate: "2026-09-12",
+        fileName: "02_comprehensive_lipid_profile_report.txt",
+        fileSize: "21.0 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[1].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[1].extracted
+      },
+      {
+        id: "DOC-102-2",
+        documentType: "Prescription",
+        documentDate: "2026-09-15",
+        fileName: "11_hypertension_cardiac_prescription.txt",
+        fileSize: "16.8 KB",
+        confidenceScore: 98,
+        rawOcrText: SAMPLE_REPORTS_LIST[10].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[10].extracted
+      }
+    ]
   },
   {
     token: "OPD-103",
@@ -77,7 +132,29 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Chronic hoarseness of voice in 69y patient. Needs indirect laryngoscopy evaluation.",
     triagePriority: "Urgent (P2)",
     vitals: { sysBp: "125", diaBp: "82", heartRate: "74", spo2: "99%", temp: "98.6°F" },
-    ayushParameters: { prakriti: "Kapha-Pitta", agni: "Sama Agni", koshtha: "Mridu Koshtha" }
+    ayushParameters: { prakriti: "Kapha-Pitta", agni: "Sama Agni", koshtha: "Mridu Koshtha" },
+    documents: [
+      {
+        id: "DOC-103-1",
+        documentType: "Lab Report",
+        documentDate: "2026-09-10",
+        fileName: "03_fasting_hba1c_diabetic_profile.txt",
+        fileSize: "19.2 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[2].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[2].extracted
+      },
+      {
+        id: "DOC-103-2",
+        documentType: "Lab Report",
+        documentDate: "2026-09-14",
+        fileName: "12_pediatric_fever_ent_report.txt",
+        fileSize: "15.4 KB",
+        confidenceScore: 98,
+        rawOcrText: SAMPLE_REPORTS_LIST[11].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[11].extracted
+      }
+    ]
   },
   {
     token: "OPD-104",
@@ -103,7 +180,19 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Localized muscular strain with completely normal hemodynamics and SpO2.",
     triagePriority: "Standard (P3)",
     vitals: { sysBp: "118", diaBp: "78", heartRate: "68", spo2: "99%", temp: "98.2°F" },
-    ayushParameters: { prakriti: "Pitta-Vata", agni: "Tikshna Agni", koshtha: "Madhyama" }
+    ayushParameters: { prakriti: "Pitta-Vata", agni: "Tikshna Agni", koshtha: "Madhyama" },
+    documents: [
+      {
+        id: "DOC-104-1",
+        documentType: "Scan / Diagnostic",
+        documentDate: "2026-09-06",
+        fileName: "10_orthopedic_knee_joint_mri_report.txt",
+        fileSize: "23.8 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[9].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[9].extracted
+      }
+    ]
   },
   {
     token: "OPD-105",
@@ -129,7 +218,19 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Radicular nerve compression symptoms with peripheral numbness in upper extremity.",
     triagePriority: "Urgent (P2)",
     vitals: { sysBp: "138", diaBp: "88", heartRate: "76", spo2: "98%", temp: "98.6°F" },
-    ayushParameters: { prakriti: "Vata-Kapha", agni: "Vishama Agni", koshtha: "Krura Koshtha" }
+    ayushParameters: { prakriti: "Vata-Kapha", agni: "Vishama Agni", koshtha: "Krura Koshtha" },
+    documents: [
+      {
+        id: "DOC-105-1",
+        documentType: "Discharge Summary",
+        documentDate: "2026-09-07",
+        fileName: "09_ayurvedic_nadi_prakriti_discharge_summary.txt",
+        fileSize: "20.1 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[8].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[8].extracted
+      }
+    ]
   },
   {
     token: "OPD-106",
@@ -155,7 +256,29 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Severe retrosternal dyspepsia. Needs ECG to rule out atypical cardiac ischemia.",
     triagePriority: "Urgent (P2)",
     vitals: { sysBp: "122", diaBp: "80", heartRate: "72", spo2: "98%", temp: "98.4°F" },
-    ayushParameters: { prakriti: "Pitta-Vata", agni: "Tikshna Agni", koshtha: "Mridu Koshtha" }
+    ayushParameters: { prakriti: "Pitta-Vata", agni: "Tikshna Agni", koshtha: "Mridu Koshtha" },
+    documents: [
+      {
+        id: "DOC-106-1",
+        documentType: "Lab Report",
+        documentDate: "2026-09-08",
+        fileName: "05_liver_function_test_lft_report.txt",
+        fileSize: "19.7 KB",
+        confidenceScore: 98,
+        rawOcrText: SAMPLE_REPORTS_LIST[4].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[4].extracted
+      },
+      {
+        id: "DOC-106-2",
+        documentType: "Scan / Diagnostic",
+        documentDate: "2026-09-05",
+        fileName: "14_gastroenterology_endoscopy_report.txt",
+        fileSize: "22.0 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[13].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[13].extracted
+      }
+    ]
   },
   {
     token: "OPD-107",
@@ -181,7 +304,19 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Mild seasonal allergic symptoms with stable vitals.",
     triagePriority: "Standard (P3)",
     vitals: { sysBp: "116", diaBp: "76", heartRate: "70", spo2: "99%", temp: "98.6°F" },
-    ayushParameters: { prakriti: "Kapha-Vata", agni: "Manda Agni", koshtha: "Madhyama" }
+    ayushParameters: { prakriti: "Kapha-Vata", agni: "Manda Agni", koshtha: "Madhyama" },
+    documents: [
+      {
+        id: "DOC-107-1",
+        documentType: "Scan / Diagnostic",
+        documentDate: "2026-09-13",
+        fileName: "08_chest_xray_pulmonology_report.txt",
+        fileSize: "18.3 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[7].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[7].extracted
+      }
+    ]
   },
   {
     token: "OPD-108",
@@ -207,7 +342,19 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Impaired fasting blood glucose (128 mg/dL) with early signs of diabetic neuropathy.",
     triagePriority: "Urgent (P2)",
     vitals: { sysBp: "130", diaBp: "84", heartRate: "75", spo2: "98%", temp: "98.4°F" },
-    ayushParameters: { prakriti: "Kapha-Pitta", agni: "Sama Agni", koshtha: "Madhyama" }
+    ayushParameters: { prakriti: "Kapha-Pitta", agni: "Sama Agni", koshtha: "Madhyama" },
+    documents: [
+      {
+        id: "DOC-108-1",
+        documentType: "Prescription",
+        documentDate: "2026-09-15",
+        fileName: "11_hypertension_cardiac_prescription.txt",
+        fileSize: "17.1 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[10].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[10].extracted
+      }
+    ]
   },
   {
     token: "OPD-109",
@@ -233,7 +380,19 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Postural muscle soreness without neurological deficit.",
     triagePriority: "Standard (P3)",
     vitals: { sysBp: "126", diaBp: "80", heartRate: "66", spo2: "99%", temp: "98.2°F" },
-    ayushParameters: { prakriti: "Pitta-Vata", agni: "Tikshna Agni", koshtha: "Madhyama" }
+    ayushParameters: { prakriti: "Pitta-Vata", agni: "Tikshna Agni", koshtha: "Madhyama" },
+    documents: [
+      {
+        id: "DOC-109-1",
+        documentType: "Lab Report",
+        documentDate: "2026-09-11",
+        fileName: "06_renal_kidney_function_test_kft.txt",
+        fileSize: "20.4 KB",
+        confidenceScore: 99,
+        rawOcrText: SAMPLE_REPORTS_LIST[5].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[5].extracted
+      }
+    ]
   },
   {
     token: "OPD-110",
@@ -259,7 +418,19 @@ export const TAMIL_ACTORS_PATIENTS = [
     riskReason: "Stable ankle ligament sprain under conservative management.",
     triagePriority: "Standard (P3)",
     vitals: { sysBp: "120", diaBp: "78", heartRate: "72", spo2: "99%", temp: "98.6°F" },
-    ayushParameters: { prakriti: "Pitta-Kapha", agni: "Sama Agni", koshtha: "Madhyama" }
+    ayushParameters: { prakriti: "Pitta-Kapha", agni: "Sama Agni", koshtha: "Madhyama" },
+    documents: [
+      {
+        id: "DOC-110-1",
+        documentType: "Lab Report",
+        documentDate: "2026-09-13",
+        fileName: "13_urine_routine_microscopy_report.txt",
+        fileSize: "16.8 KB",
+        confidenceScore: 98,
+        rawOcrText: SAMPLE_REPORTS_LIST[12].rawOcrText,
+        extracted: SAMPLE_REPORTS_LIST[12].extracted
+      }
+    ]
   }
 ];
 

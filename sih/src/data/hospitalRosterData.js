@@ -2,6 +2,7 @@
 // 380 HOSPITALS x 10 MEMBERS = 3,800 100% UNIQUE PERSONNEL & PATIENTS (+ 1 SUPER ADMIN = 3,801 TOTAL)
 
 import { ALL_380_TN_HOSPITALS } from './tnHospitals';
+import { SAMPLE_REPORTS_LIST } from './sampleReportsData';
 
 const SOUTH_INDIAN_NAME_BASES = [
   "Joseph Vijay", "Rajinikanth M.", "Kamal Haasan R.", "Suriya S.", "Ajith Kumar P.",
@@ -232,7 +233,7 @@ export const getHospitalRoster = (hospitalName, districtName = "Chennai") => {
   };
 };
 
-// GENERATE ALL 2,280 UNIQUE NETWORK PATIENTS ACROSS ALL 380 HOSPITALS
+// GENERATE ALL 2,280 UNIQUE NETWORK PATIENTS ACROSS ALL 380 HOSPITALS (UNIQUE PANELS & USER IDS)
 export const getAllNetworkPatients = () => {
   const allPatients = [];
   ALL_380_TN_HOSPITALS.forEach((h, hIdx) => {
@@ -244,16 +245,31 @@ export const getAllNetworkPatients = () => {
       const doc1NameBase = SOUTH_INDIAN_NAME_BASES[(hIdx * 2) % SOUTH_INDIAN_NAME_BASES.length];
       const doc2NameBase = SOUTH_INDIAN_NAME_BASES[(hIdx * 2 + 1) % SOUTH_INDIAN_NAME_BASES.length];
 
+      const patientId = `PAT-${1001 + pIdx}`;
+      const username = `pat${1001 + pIdx}`;
+      const token = `OPD-${1001 + pIdx}`;
+      const abhaId = `91-${7000 + (pIdx % 2999)}-${1000 + (pIdx % 8999)}-${2000 + (pIdx % 7999)}`;
+      const aadhaar = `${2000 + (pIdx % 7999)}-${3000 + (pIdx % 6999)}-${4000 + (pIdx % 5999)}`;
+      const phone = `9840${String(100000 + pIdx).padStart(6, '0')}`;
+      const patName = `${patNameBase.toUpperCase()} ${String.fromCharCode(65 + (pIdx % 26))}.`;
+
+      // 1 to 2 Sample medical documents per patient
+      const sampleDoc1 = SAMPLE_REPORTS_LIST[pIdx % SAMPLE_REPORTS_LIST.length];
+      const sampleDoc2 = SAMPLE_REPORTS_LIST[(pIdx + 3) % SAMPLE_REPORTS_LIST.length];
+
       allPatients.push({
-        id: `PAT-${1001 + pIdx}`,
-        token: `OPD-${1001 + pIdx}`,
-        name: `${patNameBase.toUpperCase()} ${String.fromCharCode(65 + (pIdx % 26))}.`,
-        age: `${28 + (pIdx % 50)}`,
+        id: patientId,
+        username: username,
+        token: token,
+        name: patName,
+        age: `${24 + (pIdx % 54)}`,
         gender: pIdx % 2 === 0 ? "Male" : "Female",
-        phone: `9840${String(100000 + pIdx).padStart(6, '0')}`,
+        phone: phone,
+        aadhaar: aadhaar,
+        abhaId: abhaId,
         category: pIdx % 5 === 0 ? "IAS / Public Dignitary" : (pIdx % 3 === 0 ? "Popular Creator / Influencer" : "South Indian Public Resident"),
         diseaseCategory: diseaseTemplate.category,
-        chiefComplaint: `Clinical symptom presentation #${(pIdx % 9) + 1} requiring consultation`,
+        chiefComplaint: `Clinical symptom presentation: ${diseaseTemplate.diag} (${diseaseTemplate.category})`,
         diagnosis: diseaseTemplate.diag,
         tablets: diseaseTemplate.tab,
         prescribedDays: diseaseTemplate.limit,
@@ -264,9 +280,145 @@ export const getAllNetworkPatients = () => {
         district: h.district,
         assignedDoctor: pSlot % 2 === 0 ? `Dr. ${doc1NameBase}` : `Dr. ${doc2NameBase}`,
         time: `${String(8 + (pIdx % 8)).padStart(2, '0')}:${String((pIdx * 7) % 60).padStart(2, '0')} AM`,
-        status: pIdx % 4 === 0 ? "Completed" : (pIdx % 3 === 0 ? "In Queue" : "Registered Offline")
+        status: pIdx % 4 === 0 ? "Completed" : (pIdx % 3 === 0 ? "In Queue" : "Registered Offline"),
+        visitHistory: [
+          {
+            id: `VISIT-${pIdx}-1`,
+            date: "2026-08-18",
+            hospital: h.name,
+            doctor: pSlot % 2 === 0 ? `Dr. ${doc1NameBase}` : `Dr. ${doc2NameBase}`,
+            chiefComplaint: diseaseTemplate.diag,
+            diagnosis: `${diseaseTemplate.diag} - Initial Evaluation`,
+            labSummary: "Biochemical panel within manageable thresholds.",
+            prescription: diseaseTemplate.tab
+          },
+          {
+            id: `VISIT-${pIdx}-2`,
+            date: "2026-09-02",
+            hospital: h.name,
+            doctor: pSlot % 2 === 0 ? `Dr. ${doc1NameBase}` : `Dr. ${doc2NameBase}`,
+            chiefComplaint: "Routine OPD Follow-up & Vitals Assessment",
+            diagnosis: `${diseaseTemplate.diag} - Clinical Improvement`,
+            labSummary: "Normal hemodynamics, adherence to Ayush regimen.",
+            prescription: diseaseTemplate.tab
+          }
+        ],
+        documents: [
+          {
+            id: `DOC-${pIdx}-1`,
+            documentType: sampleDoc1.category,
+            documentDate: sampleDoc1.date,
+            fileName: sampleDoc1.fileName,
+            fileSize: "18.4 KB",
+            confidenceScore: 99,
+            rawOcrText: sampleDoc1.rawOcrText,
+            extracted: sampleDoc1.extracted
+          },
+          {
+            id: `DOC-${pIdx}-2`,
+            documentType: sampleDoc2.category,
+            documentDate: sampleDoc2.date,
+            fileName: sampleDoc2.fileName,
+            fileSize: "21.2 KB",
+            confidenceScore: 98,
+            rawOcrText: sampleDoc2.rawOcrText,
+            extracted: sampleDoc2.extracted
+          }
+        ]
       });
     }
   });
   return allPatients;
 };
+
+// FIND PATIENT BY ID, USERNAME, ABHA, PHONE, OR NAME (ACROSS 2,280 PATIENTS)
+export const findPatientByIdOrUsername = (query) => {
+  if (!query) return null;
+  const q = query.trim().toLowerCase();
+  const allPatients = getAllNetworkPatients();
+
+  // 1. Exact ID, Username, Token, or Phone Match
+  const exact = allPatients.find(p => 
+    p.id.toLowerCase() === q ||
+    p.username.toLowerCase() === q ||
+    p.token.toLowerCase() === q ||
+    p.phone === q ||
+    p.phone.replace(/\D/g, '') === q.replace(/\D/g, '') ||
+    p.aadhaar.replace(/\D/g, '') === q.replace(/\D/g, '') ||
+    p.abhaId.toLowerCase() === q ||
+    p.id.toLowerCase().replace('-', '') === q.replace('-', '')
+  );
+  if (exact) return exact;
+
+  // 2. Name search
+  const byName = allPatients.find(p => p.name.toLowerCase().includes(q));
+  if (byName) return byName;
+
+  return null;
+};
+
+// GENERATE ALL 760 UNIQUE DOCTORS (380 HOSPITALS x 2 DOCTORS PER HOSPITAL)
+export const getAll760Doctors = () => {
+  const allDoctors = [];
+  ALL_380_TN_HOSPITALS.forEach((h, hIdx) => {
+    const dIdx1 = hIdx * 2;
+    const dIdx2 = hIdx * 2 + 1;
+
+    const doc1NameBase = SOUTH_INDIAN_NAME_BASES[dIdx1 % SOUTH_INDIAN_NAME_BASES.length];
+    const doc2NameBase = SOUTH_INDIAN_NAME_BASES[dIdx2 % SOUTH_INDIAN_NAME_BASES.length];
+
+    allDoctors.push({
+      id: `DOC-${1001 + dIdx1}`,
+      name: `Dr. ${doc1NameBase} ${String.fromCharCode(65 + (dIdx1 % 26))}.`,
+      username: `doc${1001 + dIdx1}`,
+      qualification: QUALIFICATIONS[dIdx1 % QUALIFICATIONS.length],
+      spec: SPECIALTIES[dIdx1 % SPECIALTIES.length],
+      role: "Senior Consultant Doctor",
+      hospital: h.name,
+      district: h.district,
+      curedCount: 18 + (dIdx1 % 10),
+      totalCount: 20 + (dIdx1 % 10),
+      cureRate: Math.round(((18 + (dIdx1 % 10)) / (20 + (dIdx1 % 10))) * 100),
+      promoted: (dIdx1 % 3 === 0)
+    });
+
+    allDoctors.push({
+      id: `DOC-${1001 + dIdx2}`,
+      name: `Dr. ${doc2NameBase} ${String.fromCharCode(65 + (dIdx2 % 26))}.`,
+      username: `doc${1001 + dIdx2}`,
+      qualification: QUALIFICATIONS[dIdx2 % QUALIFICATIONS.length],
+      spec: SPECIALTIES[dIdx2 % SPECIALTIES.length],
+      role: "Associate Specialist Doctor",
+      hospital: h.name,
+      district: h.district,
+      curedCount: 14 + (dIdx2 % 8),
+      totalCount: 16 + (dIdx2 % 8),
+      cureRate: Math.round(((14 + (dIdx2 % 8)) / (16 + (dIdx2 % 8))) * 100),
+      promoted: false
+    });
+  });
+  return allDoctors;
+};
+
+// FIND DOCTOR BY ID, USERNAME, OR NAME
+export const findDoctorByIdOrUsername = (query) => {
+  if (!query) return null;
+  const q = query.trim().toLowerCase();
+  const allDocs = getAll760Doctors();
+
+  // 1. Direct ID or Username Match (e.g. "DOC-1001" or "doc1001" or "doctor")
+  if (q === 'doctor') return allDocs[0]; // Default doctor fallback
+  const exact = allDocs.find(d => 
+    d.id.toLowerCase() === q || 
+    d.username.toLowerCase() === q || 
+    d.id.toLowerCase().replace('-', '') === q.replace('-', '')
+  );
+  if (exact) return exact;
+
+  // 2. Name Match
+  const byName = allDocs.find(d => d.name.toLowerCase().includes(q));
+  if (byName) return byName;
+
+  return null;
+};
+

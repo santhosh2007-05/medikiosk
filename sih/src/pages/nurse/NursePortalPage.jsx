@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { MEDICAL_IMAGES, ROLE_AVATARS } from '../../data/images';
 import { getPatientRiskMetrics } from '../../services/aiSummarizer';
+import { HomeAppointmentModal } from '../../components/home/HomeAppointmentModal';
 import {
   Activity, CheckCircle, HeartPulse, LogOut, Users, ShieldCheck, UserPlus,
-  Calendar, Bell, Settings, HelpCircle, Thermometer
+  Calendar, Bell, Settings, HelpCircle, Thermometer, Home
 } from 'lucide-react';
 
 export const NursePortalPage = ({ onLogout }) => {
@@ -51,6 +52,7 @@ export const NursePortalPage = ({ onLogout }) => {
 
   // Nurse Sidebar Tab State: 'triage' | 'patients_list' | 'appointments_calendar' | 'notifications' | 'settings' | 'help'
   const [activeTab, setActiveTab] = useState('triage');
+  const [homeModalOpen, setHomeModalOpen] = useState(false);
 
   const [selectedPatientToken, setSelectedPatientToken] = useState(
     doctorQueue.length > 0 ? doctorQueue[0].token : null
@@ -242,7 +244,7 @@ export const NursePortalPage = ({ onLogout }) => {
       </aside>
 
       {/* MAIN WORKSPACE CONTENT */}
-      <main className="flex-1 p-4 md:p-8 space-y-6 overflow-y-auto bg-stone-950">
+      <main className="flex-1 h-screen overflow-y-auto p-4 md:p-8 space-y-6 overflow-y-auto bg-stone-950">
 
         {/* VIEW 1: NURSE INTERVENTION DESK (TRIAGE WORKSPACE) */}
         {activeTab === 'triage' && (
@@ -261,6 +263,12 @@ export const NursePortalPage = ({ onLogout }) => {
               </div>
 
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setHomeModalOpen(true)}
+                  className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md text-xs transition flex items-center gap-1.5"
+                >
+                  <Home className="w-4 h-4" /> Book Home OP (+1)
+                </button>
                 <button
                   onClick={handleRegisterNurseOp}
                   className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md text-xs transition flex items-center gap-1.5"
@@ -301,7 +309,14 @@ export const NursePortalPage = ({ onLogout }) => {
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-extrabold text-xs text-white">{patient.name}</span>
+                          <span className="font-extrabold text-xs text-white flex items-center gap-1.5">
+                            {patient.name}
+                            {patient.isHomeBooked && (
+                              <span className="text-[9px] bg-blue-950 text-blue-300 px-1.5 py-0.2 rounded font-mono font-bold border border-blue-800">
+                                HOME
+                              </span>
+                            )}
+                          </span>
                           <span className="font-mono text-[10px] font-bold text-emerald-400 px-2 py-0.5 bg-stone-900 rounded border border-stone-800">
                             {patient.token}
                           </span>
@@ -688,6 +703,13 @@ export const NursePortalPage = ({ onLogout }) => {
           </div>
         )}
       </main>
+      {/* HOME APPOINTMENT MODAL */}
+      {homeModalOpen && (
+        <HomeAppointmentModal
+          isOpen={homeModalOpen}
+          onClose={() => setHomeModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -67,6 +67,7 @@ export const PatientSessionProvider = ({ children }) => {
   const [deviceFrame, setDeviceFrame] = useState('desktop');
   const [activeDoctorTab, setActiveDoctorTab] = useState('summary');
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+  const [authenticatedDoctor, setAuthenticatedDoctor] = useState(null);
 
   const [appointments, setAppointments] = useState([
     {
@@ -121,18 +122,31 @@ export const PatientSessionProvider = ({ children }) => {
   const addDocument = (doc) => {
     setSession(prev => ({
       ...prev,
-      documents: [...prev.documents, doc]
+      documents: [doc, ...prev.documents.filter(d => d.id !== doc.id)]
     }));
+
+    setAuthenticatedUser(prevUser => {
+      if (!prevUser) return prevUser;
+      return {
+        ...prevUser,
+        documents: [doc, ...(prevUser.documents || []).filter(d => d.id !== doc.id)]
+      };
+    });
 
     // Instantly sync uploaded document to doctor portal queue active patient
     setDoctorQueue(prevQueue => {
       if (!prevQueue || prevQueue.length === 0) return prevQueue;
       return prevQueue.map((patient, idx) => {
-        if (idx === 0 || (session.identity?.token && patient.token === session.identity.token)) {
-          const currentDocs = patient.documents || [];
+        const currentToken = session.identity?.token || authenticatedUser?.token || authenticatedUser?.id;
+        const currentName = session.identity?.name || authenticatedUser?.name;
+        const isMatch = (currentToken && patient.token === currentToken) ||
+                        (currentName && patient.name?.toLowerCase().includes(currentName.toLowerCase())) ||
+                        idx === 0;
+        if (isMatch) {
+          const existingDocs = (patient.documents || []).filter(d => d.id !== doc.id);
           return {
             ...patient,
-            documents: [doc, ...currentDocs]
+            documents: [doc, ...existingDocs]
           };
         }
         return patient;
@@ -148,6 +162,35 @@ export const PatientSessionProvider = ({ children }) => {
           patientToken: session.identity?.token || "OPD-101",
           document: doc
         })
+      }).catch(() => {});
+    } catch(e) {}
+  };
+
+  const deleteDocument = (docId) => {
+    setSession(prev => ({
+      ...prev,
+      documents: prev.documents.filter(d => d.id !== docId)
+    }));
+
+    setAuthenticatedUser(prevUser => {
+      if (!prevUser) return prevUser;
+      return {
+        ...prevUser,
+        documents: (prevUser.documents || []).filter(d => d.id !== docId)
+      };
+    });
+
+    setDoctorQueue(prevQueue => {
+      if (!prevQueue) return prevQueue;
+      return prevQueue.map(p => ({
+        ...p,
+        documents: (p.documents || []).filter(d => d.id !== docId)
+      }));
+    });
+
+    try {
+      fetch(`http://localhost:8080/api/patient/documents/${docId}`, {
+        method: "DELETE"
       }).catch(() => {});
     } catch(e) {}
   };
@@ -226,9 +269,12 @@ export const PatientSessionProvider = ({ children }) => {
       addAppointment,
       authenticatedUser,
       setAuthenticatedUser,
+      authenticatedDoctor,
+      setAuthenticatedDoctor,
       updateIdentity,
       updateHistory,
       addDocument,
+      deleteDocument,
       clearDocuments,
       updateSummary,
       loadPreset,

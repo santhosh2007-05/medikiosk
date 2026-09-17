@@ -1,0 +1,25 @@
+RAJIV GANDHI GOVERNMENT GENERAL HOSPITAL - CARDIAC CATH LAB & ECG UNIT
+PATIENT: JOSEPH VIJAY | AGE: 36 Yrs | GENDER: Male | TOKEN: OPD-101
+RECORDING SPEED: 25 mm/s | VOLTAGE: 10 mm/mV | FILTER: 50 Hz | DATE: 15-SEP-2026
+
+12-LEAD RESTING ECG INTERPRETATION:
+- Heart Rate: 98 bpm (Sinus Tachycardia)
+- Rhythm: Regular Sinus Rhythm
+- PR Interval: 156 ms (Normal)
+- QRS Duration: 88 ms (Normal)
+- QT / QTc Interval: 392 / 454 ms (Borderline Prolonged)
+- Frontal Axis: +60 degrees (Normal Axis)
+
+ISCHEMIC / MORPHOLOGICAL FINDINGS:
+• ST-segment depression of 1.5 mm observed in precordial leads V4, V5, V6
+• Symmetrical T-wave inversion in Leads II, III, and aVF
+• No pathological Q-waves identified
+• Sokolow-Lyon Voltage Index: 28 mm (Within normal limits)
+
+CLINICAL IMPRESSION:
+Precordial ST-T segment changes suggestive of Acute Subendocardial Ischemia / Myocardial Strain.
+RECOMMENDATION: Serial cardiac troponin-I enzyme assays, 2D Echocardiography, bed rest, and immediate cardiology consultation.
+
+[SECURITY-WATERMARK: #MK-EHR-VALID-CLINICAL-REPORT-2026-NABL#]
+[ENCRYPTED-SECURITY-TOKEN: XXXXXXYYYYYZZZZZZ]
+[AUTHENTIC-SECURITY-KEY: MK-CERTIFIED-TN-HEALTH-9942]

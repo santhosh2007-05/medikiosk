@@ -12,16 +12,20 @@ import { Screen8TimelineLabFlags } from '../../components/patient/Screen8Timelin
 import { Screen9SummaryReadBack } from '../../components/patient/Screen9SummaryReadBack';
 import { Screen10SubmissionComplete } from '../../components/patient/Screen10SubmissionComplete';
 import { AppointmentsPanel } from '../../components/appointment/AppointmentsPanel';
+import { HomeAppointmentModal } from '../../components/home/HomeAppointmentModal';
+import { PatientDocumentUploadPanel } from '../../components/patient/PatientDocumentUploadPanel';
 import { HospitalLocationCard } from '../../components/common/HospitalLocationCard';
 import { MEDICAL_IMAGES } from '../../data/images';
 import { getTranslation } from '../../data/translations';
 import {
   Calendar, FileText, UploadCloud, ShieldCheck, QrCode, LogOut, PlusCircle,
-  Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, X, Sparkles
+  Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, X, Sparkles,
+  Home, CheckCircle2, KeyRound
 } from 'lucide-react';
 
 export const PatientDashboardPage = ({ onLogout }) => {
-  const { authenticatedUser, session, currentStep, setViewMode, resetSession, updateIdentity } = usePatientSession();
+  const { authenticatedUser, session, currentStep, setViewMode, resetSession, updateIdentity, appointments } = usePatientSession();
+  const [showHomeOpModal, setShowHomeOpModal] = useState(false);
   
   // Navigation active tab: 'overview' | 'intake' | 'visits' | 'documents' | 'abha' | 'book'
   const [activeTab, setActiveTab] = useState('overview');
@@ -36,11 +40,20 @@ export const PatientDashboardPage = ({ onLogout }) => {
   const patientGender = authenticatedUser?.gender || session.identity.gender || "Male";
   const hospitalName = authenticatedUser?.hospital || "Rajiv Gandhi Government General Hospital, Chennai";
 
-  const [visitHistory] = useState(
-    authenticatedUser?.visitHistory !== undefined ? authenticatedUser.visitHistory : []
-  );
-
+  const visitHistory = authenticatedUser?.visitHistory || [];
   const [selectedVisitModal, setSelectedVisitModal] = useState(null);
+
+  // Filter appointments so patient ONLY sees their OWN appointment passes
+  const currentPatientName = (authenticatedUser?.name || session.identity?.name || "JOSEPH VIJAY").toLowerCase().trim();
+  const currentPhone = (authenticatedUser?.phone || session.identity?.phone || "").trim();
+
+  const myAppointments = (appointments || []).filter(apt => {
+    const aptName = (apt.patientName || "").toLowerCase().trim();
+    const aptPhone = (apt.patientPhone || "").trim();
+    const matchName = currentPatientName && (aptName === currentPatientName || aptName.includes(currentPatientName) || currentPatientName.includes(aptName));
+    const matchPhone = currentPhone && aptPhone && (aptPhone.includes(currentPhone) || currentPhone.includes(aptPhone));
+    return matchName || matchPhone;
+  });
 
   const handleSelectLanguage = (langCode) => {
     updateIdentity({ language: langCode });
@@ -53,9 +66,9 @@ export const PatientDashboardPage = ({ onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col md:flex-row font-sans">
+    <div className="h-screen w-screen bg-stone-950 text-stone-100 flex flex-col md:flex-row overflow-hidden font-sans">
       {/* STATIC FIXED LEFT SIDEBAR (DESKTOP ONLY - HIDDEN ON MOBILE/PHONE VIEW) */}
-      <aside className="hidden md:flex md:flex-col md:w-64 bg-stone-900 text-white p-5 justify-between shrink-0 shadow-2xl border-r border-stone-800 sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden md:flex md:flex-col md:w-64 bg-stone-900 text-white p-5 justify-between shrink-0 shadow-2xl border-r border-stone-800 h-screen sticky top-0 overflow-y-auto">
         <div className="space-y-6">
           {/* Patient Profile Card */}
           <div className="flex items-center gap-3 border-b border-stone-800 pb-5">
@@ -177,7 +190,7 @@ export const PatientDashboardPage = ({ onLogout }) => {
       </aside>
 
       {/* MAIN CONTENT AREA (DARK ADMIN THEME) */}
-      <main className="flex-1 p-4 sm:p-6 md:p-8 w-full space-y-6 overflow-y-auto bg-stone-950">
+      <main className="flex-1 h-screen overflow-y-auto p-4 sm:p-6 md:p-8 w-full space-y-6 bg-stone-950">
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
@@ -214,6 +227,85 @@ export const PatientDashboardPage = ({ onLogout }) => {
                 </div>
               </div>
             </div>
+
+
+            {/* PROMINENT PATIENT-DRIVEN HOME OP APPOINTMENT CALLOUT */}
+            <div className="bg-gradient-to-r from-emerald-950/90 via-stone-900 to-stone-900 border-2 border-emerald-500/50 p-6 sm:p-7 rounded-3xl shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-80 h-full bg-emerald-500/10 blur-2xl rounded-full pointer-events-none" />
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
+                <div className="space-y-2 max-w-2xl">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-900 text-emerald-300 border border-emerald-600 flex items-center gap-1.5">
+                      <Home className="w-3.5 h-3.5" />
+                      NEW: PATIENT ONLINE OP REGISTRATION
+                    </span>
+                    <span className="text-[11px] text-emerald-400 font-bold">ABDM & DPDP 5-Min BCrypt OTP Timed</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">
+                    Apply for Outpatient (OP) Consultation from Home
+                  </h2>
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    Book your OPD appointment slot directly from home before visiting the hospital. Your request reflects instantly on the assigned Doctor & Nurse workstation with a timed 5-minute BCrypt security shield.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <button
+                    onClick={() => setShowHomeOpModal(true)}
+                    className="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center gap-2 transition active:scale-95"
+                  >
+                    <Home className="w-4 h-4 text-stone-950" />
+                    Apply OP from Home Now
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ACTIVE HOME APPOINTMENT PASSES (IF ANY) */}
+            {myAppointments && myAppointments.length > 0 && (
+              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                  <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-emerald-400" /> Active Home-Booked OP Appointments ({myAppointments.length})
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 text-xs font-mono font-bold border border-emerald-800">
+                    Live Verified Pass
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {myAppointments.map((apt, idx) => (
+                    <div key={idx} className="p-4 bg-stone-950 border border-emerald-900/50 rounded-xl space-y-3 relative overflow-hidden">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="text-xs font-mono text-emerald-400 font-bold">{apt.id}</span>
+                          <h4 className="font-bold text-sm text-white flex items-center gap-1.5 mt-0.5">
+                            <span className="text-emerald-300 font-mono font-extrabold">{apt.token}</span> • {apt.patientName}
+                          </h4>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 text-[10px] font-mono font-bold flex items-center gap-1 border border-emerald-800">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" /> {apt.status || 'Confirmed'}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-stone-300 space-y-1 bg-stone-900/80 p-3 rounded-lg border border-stone-800">
+                        <div><strong>Doctor:</strong> {apt.doctorName || 'Dr. V. S. Ramachandran'}</div>
+                        <div><strong>Hospital:</strong> {apt.hospital || apt.hospitalName || 'Rajiv Gandhi Govt General Hospital'}</div>
+                        <div><strong>Specialty:</strong> {apt.department}</div>
+                        <div className="flex items-center gap-2 pt-1 font-mono text-emerald-400">
+                          <Clock className="w-3.5 h-3.5" /> Slot: {apt.timeSlot || '10:30 AM'} ({apt.date || 'Today'})
+                        </div>
+                      </div>
+
+                      <div className="p-2.5 bg-emerald-950/50 border border-emerald-800/60 rounded-lg text-[11px] text-emerald-300 flex items-center gap-2">
+                        <KeyRound className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>During consultation, doctor will request a 6-digit OTP sent to your phone/portal to unlock medical details for 5 minutes.</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quick Metrics Cards (4 Columns including AI Clinical Risk Health Status) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -436,18 +528,8 @@ export const PatientDashboardPage = ({ onLogout }) => {
 
         {/* DOCUMENTS TAB */}
         {activeTab === 'documents' && (
-          <div className="space-y-5">
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-md flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <h2 className="text-lg font-bold text-white mb-1">{getTranslation("medicalRecordsUploads", lang)}</h2>
-                <p className="text-xs text-stone-400">{getTranslation("uploadDocsSub", lang)}</p>
-              </div>
-              <div className="w-32 h-20 rounded-xl overflow-hidden border border-stone-800 hidden sm:block">
-                <img src={MEDICAL_IMAGES.labReport} alt="Lab Scan" className="w-full h-full object-cover opacity-80" />
-              </div>
-            </div>
-
-            <Screen7DocumentUpload />
+          <div className="space-y-5 animate-in fade-in duration-300">
+            <PatientDocumentUploadPanel />
           </div>
         )}
 
@@ -503,6 +585,13 @@ export const PatientDashboardPage = ({ onLogout }) => {
             <AppointmentsPanel />
           </div>
         )}
+
+        {/* Home Appointment Booking Modal */}
+        <HomeAppointmentModal
+          isOpen={showHomeOpModal}
+          onClose={() => setShowHomeOpModal(false)}
+        />
+
       </main>
 
       {/* LANGUAGE SELECTOR MODAL */}

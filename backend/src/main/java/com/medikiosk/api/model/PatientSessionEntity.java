@@ -43,6 +43,7 @@ public class PatientSessionEntity {
     // SOCRATES Parameters
     private String site;
     private String onset;
+    @Column(name = "socrates_character")
     private String character;
     private String radiation;
     private String associated;

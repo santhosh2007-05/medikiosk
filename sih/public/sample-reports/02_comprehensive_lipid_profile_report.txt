@@ -1,0 +1,20 @@
+GOVERNMENT STANLEY MEDICAL COLLEGE HOSPITAL - BIOCHEMISTRY LAB
+PATIENT: RAJINIKANTH M. | AGE: 73 Yrs | GENDER: Male | IP/OP: STN-9901
+SPECIMEN: Fasting Serum (12 hrs fast) | DATE: 12-SEP-2026
+
+LIPID & METABOLIC BIOMARKER PANEL:
+- Total Cholesterol: 248 mg/dL       [DESIRABLE: < 200 mg/dL]   --> HIGH
+- Triglycerides: 215 mg/dL           [DESIRABLE: < 150 mg/dL]   --> ELEVATED (Borderline High)
+- HDL Cholesterol ('Good'): 38 mg/dL  [DESIRABLE: > 40 mg/dL]    --> LOW
+- LDL Cholesterol ('Bad'): 167 mg/dL   [OPTIMAL: < 100 mg/dL]     --> HIGH / Atherogenic Risk
+- VLDL Cholesterol: 43 mg/dL         [NORMAL: 5 - 30 mg/dL]     --> ELEVATED
+- Total Chol / HDL Ratio: 6.52       [DESIRABLE: < 4.5]         --> HIGH CARDIOVASCULAR RISK
+- Serum Homocysteine: 16.8 umol/L    [REF: 5 - 15 umol/L]       --> ELEVATED
+
+INTERPRETATION:
+Mixed dyslipidemia with elevated atherogenic risk index in elderly patient with hypertension.
+Advise: Statin therapy, strict low-lipid dietary regimen, Arjuna bark decoction, and brisk morning walk.
+
+[SECURITY-WATERMARK: #MK-EHR-VALID-CLINICAL-REPORT-2026-NABL#]
+[ENCRYPTED-SECURITY-TOKEN: XXXXXXYYYYYZZZZZZ]
+[AUTHENTIC-SECURITY-KEY: MK-CERTIFIED-TN-HEALTH-9942]

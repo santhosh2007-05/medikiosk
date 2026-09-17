@@ -153,7 +153,7 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col md:flex-row font-sans">
       {/* LEFT SIDEBAR NAVIGATION (DESKTOP ONLY - HIDDEN ON MOBILE/PHONE VIEW) */}
-      <aside className="hidden md:flex md:flex-col md:w-64 bg-stone-900 text-white p-5 justify-between shrink-0 shadow-2xl border-r border-stone-800 sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden md:flex md:flex-col md:w-64 h-screen bg-stone-900 sticky top-0 overflow-y-auto text-white p-5 justify-between shrink-0 shadow-2xl border-r border-stone-800 sticky top-0 h-screen overflow-y-auto">
         <div className="space-y-6">
           {/* Receptionist Profile Card */}
           <div className="flex items-center gap-3 border-b border-stone-800 pb-5">
@@ -220,7 +220,7 @@ export const ReceptionistPortalPage = ({ onLogout }) => {
       </aside>
 
       {/* MAIN WORKSPACE CONTENT */}
-      <main className="flex-1 p-4 md:p-8 space-y-6 overflow-y-auto bg-stone-950">
+      <main className="flex-1 h-screen overflow-y-auto p-4 md:p-8 space-y-6 overflow-y-auto bg-stone-950">
         {/* Header Banner */}
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-md flex items-center justify-between flex-wrap gap-4">
           <div>

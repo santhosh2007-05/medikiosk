@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { AadhaarAuthModal } from '../auth/AadhaarAuthModal';
 import { AndroidLeftDrawer } from './AndroidLeftDrawer';
+import { BatteryWidget } from './BatteryWidget';
 import { Plus, HeartHandshake, ShieldCheck, Leaf, Menu, Activity } from 'lucide-react';
 
-export const AppHeader = ({ onOpenSystemModal }) => {
+export const AppHeader = ({ onOpenSystemModal, batteryMonitor, onOpenBatteryModal }) => {
   const { session, updateIdentity, viewMode, setViewMode, doctorQueue, authenticatedUser } = usePatientSession();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -53,6 +54,14 @@ export const AppHeader = ({ onOpenSystemModal }) => {
 
           {/* Desktop Controls & View Switcher (Webpage View) */}
           <div className="hidden md:flex items-center gap-2 flex-wrap">
+            {/* Real-time Kiosk Battery Widget */}
+            {batteryMonitor && (
+              <BatteryWidget 
+                batteryMonitor={batteryMonitor} 
+                onClick={onOpenBatteryModal} 
+              />
+            )}
+
             {/* Aadhaar Auth Button */}
             <button
               onClick={() => setAuthModalOpen(true)}
@@ -93,6 +102,13 @@ export const AppHeader = ({ onOpenSystemModal }) => {
 
           {/* Mobile Right Status Action */}
           <div className="flex md:hidden items-center gap-2">
+            {batteryMonitor && (
+              <BatteryWidget 
+                batteryMonitor={batteryMonitor} 
+                onClick={onOpenBatteryModal} 
+                compact={true}
+              />
+            )}
             <button onClick={() => setAuthModalOpen(true)} className="p-1.5 px-2.5 rounded-xl bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-bold flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>Aadhaar</span>

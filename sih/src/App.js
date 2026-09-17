@@ -9,6 +9,10 @@ import { Stepper } from './components/common/Stepper';
 import { RedFlagBanner } from './components/common/RedFlagBanner';
 import { SystemStatusModal } from './components/common/SystemStatusModal';
 import { AppointmentsPanel } from './components/appointment/AppointmentsPanel';
+import { KioskBatteryAlertBanner } from './components/common/KioskBatteryAlertBanner';
+import { KioskBatteryModal } from './components/common/KioskBatteryModal';
+import { useBatteryMonitor } from './hooks/useBatteryMonitor';
+import { PatientConsentOtpModal } from './components/patient/PatientConsentOtpModal';
 
 // Pages
 import { CareTrackLoginPage } from './pages/auth/CareTrackLoginPage';
@@ -34,6 +38,10 @@ import { Screen10SubmissionComplete } from './components/patient/Screen10Submiss
 const MainAppContent = () => {
   const { viewMode, setViewMode, deviceFrame, currentStep } = usePatientSession();
   const [systemModalOpen, setSystemModalOpen] = useState(false);
+  const [batteryModalOpen, setBatteryModalOpen] = useState(false);
+
+  // Real-time Kiosk Hardware Battery & Power Telemetry Hook
+  const batteryMonitor = useBatteryMonitor({ lowThreshold: 20, criticalThreshold: 10 });
 
   // Sync URL Path with View Mode
   const navigateTo = (path, mode) => {
@@ -84,7 +92,15 @@ const MainAppContent = () => {
         />
       ) : (
         <div className="min-h-screen w-full bg-stone-100 flex flex-col pb-16 md:pb-0">
-          <AppHeader onOpenSystemModal={() => setSystemModalOpen(true)} />
+          <AppHeader 
+            onOpenSystemModal={() => setSystemModalOpen(true)}
+            batteryMonitor={batteryMonitor}
+            onOpenBatteryModal={() => setBatteryModalOpen(true)}
+          />
+          <KioskBatteryAlertBanner 
+            batteryMonitor={batteryMonitor} 
+            onOpenBatteryModal={() => setBatteryModalOpen(true)} 
+          />
           <RedFlagBanner />
 
           <div className="flex-1 w-full flex flex-col">
@@ -154,7 +170,18 @@ const MainAppContent = () => {
 
       {/* Global Modals */}
       <CookieConsentModal />
-      <SystemStatusModal isOpen={systemModalOpen} onClose={() => setSystemModalOpen(false)} />
+      <PatientConsentOtpModal />
+      <SystemStatusModal 
+        isOpen={systemModalOpen} 
+        onClose={() => setSystemModalOpen(false)}
+        batteryMonitor={batteryMonitor}
+        onOpenBatteryDiagnostics={() => setBatteryModalOpen(true)}
+      />
+      <KioskBatteryModal 
+        isOpen={batteryModalOpen} 
+        onClose={() => setBatteryModalOpen(false)} 
+        batteryMonitor={batteryMonitor} 
+      />
     </div>
   );
 };

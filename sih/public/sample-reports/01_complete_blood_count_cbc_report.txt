@@ -1,0 +1,23 @@
+TAMIL NADU STATE CLINICAL DIAGNOSTICS LABORATORY
+CENTRAL PATHOLOGY WING - CHENNAI
+PATIENT: JOSEPH VIJAY | AGE: 36 Yrs | GENDER: Male | UHID: TN-CHE-98214
+REF BY: Dr. V. S. Ramachandran, MD | SAMPLE DATE: 14-SEP-2026
+
+COMPLETE BLOOD COUNT (CBC) & HEMATOLOGY PANEL:
+- Hemoglobin (Hb): 10.8 g/dL          [REF: 13.0 - 17.5 g/dL]  --> LOW / Mild Microcytic Anemia
+- Packed Cell Volume (PCV): 34.2 %    [REF: 40.0 - 50.0 %]    --> LOW
+- Total RBC Count: 4.12 mill/uL       [REF: 4.50 - 5.90 mill] --> LOW
+- Total WBC Count: 11,400 /uL         [REF: 4,000 - 11,000]   --> ELEVATED / Mild Leukocytosis
+  • Neutrophils: 72 %                 [REF: 40 - 70 %]        --> ELEVATED
+  • Lymphocytes: 22 %                 [REF: 20 - 40 %]        --> NORMAL
+  • Monocytes: 4 %                    [REF: 2 - 8 %]          --> NORMAL
+  • Eosinophils: 2 %                  [REF: 1 - 6 %]          --> NORMAL
+- Platelet Count: 2,45,000 /uL        [REF: 1,50,000 - 4,50,000] --> NORMAL
+- Erythrocyte Sedimentation Rate (ESR): 28 mm/hr [REF: 0 - 15 mm/hr] --> ELEVATED
+
+CLINICAL IMPRESSION:
+Microcytic hypochromic anemia with mild inflammatory reaction. Recommend oral iron therapy, dietary greens, and AYUSH Lohasava formulation with follow-up in 4 weeks.
+
+[SECURITY-WATERMARK: #MK-EHR-VALID-CLINICAL-REPORT-2026-NABL#]
+[ENCRYPTED-SECURITY-TOKEN: XXXXXXYYYYYZZZZZZ]
+[AUTHENTIC-SECURITY-KEY: MK-CERTIFIED-TN-HEALTH-9942]

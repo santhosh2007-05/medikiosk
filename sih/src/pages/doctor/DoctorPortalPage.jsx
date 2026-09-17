@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { Screen11DoctorQueue } from '../../components/doctor/Screen11DoctorQueue';
 import { Screen12PatientHeader } from '../../components/doctor/Screen12PatientHeader';
@@ -7,19 +7,31 @@ import { Screen14EvidenceSideBySide } from '../../components/doctor/Screen14Evid
 import { Screen15TimelineAbnormalDoctor } from '../../components/doctor/Screen15TimelineAbnormalDoctor';
 import { Screen16FhirModal } from '../../components/doctor/Screen16FhirModal';
 import { ReinterviewModal } from '../../components/doctor/ReinterviewModal';
+import { PatientPrivacyShield } from '../../components/doctor/PatientPrivacyShield';
+import { HomeAppointmentModal } from '../../components/home/HomeAppointmentModal';
 import { MEDICAL_IMAGES } from '../../data/images';
 import { evaluateClinicalRiskWithAI, getPatientRiskMetrics } from '../../services/aiSummarizer';
 import {
   Stethoscope, Search, Sparkles, FileText, Split, Calendar, Leaf, Code,
-  ShieldCheck, LogOut, CheckCircle, Users, UserPlus,
-  FileSpreadsheet, Settings, HelpCircle, LayoutDashboard, ArrowRight
+  ShieldCheck, LogOut, CheckCircle, Users, UserPlus, Home, Lock,
+  FileSpreadsheet, Settings, HelpCircle, LayoutDashboard
 } from 'lucide-react';
 
 export const DoctorPortalPage = ({ onLogout }) => {
   const {
-    doctorQueue, setDoctorQueue, activeDoctorTab, setActiveDoctorTab,
-    setViewMode, appointments
+    session, doctorQueue, setDoctorQueue, activeDoctorTab, setActiveDoctorTab,
+    setViewMode, appointments, authenticatedDoctor
   } = usePatientSession();
+
+  const currentDoctor = authenticatedDoctor || {
+    id: "DOC-1001",
+    name: "Dr. Joseph Vijay A.",
+    qualification: "MD (General Medicine), MS (Ayurveda)",
+    spec: "Cardiology & Ayush Integrative Care",
+    role: "Senior Consultant Doctor",
+    hospital: "Rajiv Gandhi Government General Hospital, Chennai",
+    district: "Chennai"
+  };
 
   // Doctor Sidebar Tab State: '360_portal' | 'caseload' | 'appointments' | 'reports' | 'settings' | 'help'
   const [activeNavTab, setActiveNavTab] = useState('360_portal');
@@ -28,12 +40,41 @@ export const DoctorPortalPage = ({ onLogout }) => {
 
   const [fhirModalOpen, setFhirModalOpen] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [homeModalOpen, setHomeModalOpen] = useState(false);
+  const [isRecordUnlocked, setIsRecordUnlocked] = useState(false);
+  const [caseloadFilter, setCaseloadFilter] = useState('all'); // 'all' | 'today' | 'upcoming'
 
   const [selectedPatientToken, setSelectedPatientToken] = useState(
     doctorQueue.length > 0 ? doctorQueue[0].token : "OPD-101"
   );
 
-  const activePatient = doctorQueue.find(p => p.token === selectedPatientToken) || searchedPatient || doctorQueue[0];
+  const rawActivePatient = doctorQueue.find(p => p.token === selectedPatientToken) || searchedPatient || doctorQueue[0];
+
+  // Merge any session documents uploaded in Kiosk or Patient Portal in real-time
+  const activePatient = useMemo(() => {
+    if (!rawActivePatient) return rawActivePatient;
+
+    const isMatchingSession = 
+      (session?.identity?.token && rawActivePatient.token === session.identity.token) ||
+      rawActivePatient.token === "OPD-101" ||
+      (doctorQueue.length > 0 && doctorQueue[0]?.token === rawActivePatient.token);
+
+    const patientDocs = [...(rawActivePatient.documents || [])];
+    if (isMatchingSession && session?.documents && session.documents.length > 0) {
+      const existingIds = new Set(patientDocs.map(d => d.id || d.fileName));
+      session.documents.forEach(doc => {
+        if (!existingIds.has(doc.id || doc.fileName)) {
+          patientDocs.push(doc);
+          existingIds.add(doc.id || doc.fileName);
+        }
+      });
+    }
+
+    return {
+      ...rawActivePatient,
+      documents: patientDocs
+    };
+  }, [rawActivePatient, session?.documents, session?.identity?.token, doctorQueue]);
 
   const [editableHpi, setEditableHpi] = useState(activePatient?.summaryText || "");
   const [editableCc, setEditableCc] = useState(activePatient?.chiefComplaint || "");
@@ -84,7 +125,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
       setSelectedPatientToken(retrieved.token);
       setEditableHpi(retrieved.summaryText);
       setEditableCc(retrieved.chiefComplaint);
-      alert(`Retrieved Patient EHR File from Spring Boot Backend database for Token: ${retrieved.token}`);
+      alert(`Retrieved Patient EHR File from Spring Boot Backend MySQL database for Token: ${retrieved.token}`);
     }
   };
 
@@ -124,39 +165,25 @@ export const DoctorPortalPage = ({ onLogout }) => {
     const newPatient = {
       token: newToken,
       name: pName.trim(),
-      age: "38",
+      age: "35",
       gender: "Male",
-      phone: "9841029384",
-      aadhaar: "91-8849-2019-3382",
-      hospital: "Rajiv Gandhi Government General Hospital, Chennai",
-      department: "Cardiology & Ayush Integrative Care",
+      phone: "9840123456",
+      aadhaar: "91-7829-1092-4412",
+      chiefComplaint: "Walk-in physician OPD consult",
+      summaryText: `Direct physician intake at desk (${currentDoctor.hospital}).`,
+      status: "In Queue",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      chiefComplaint: "Direct Doctor Station OPD Walk-in Intake",
-      summaryText: `Patient ${pName.trim()} registered directly at Doctor Station OPD #04.`,
-      status: "Doctor Registered",
-      ayushMode: false
+      ayushMode: true,
+      vitals: { sysBp: "120", diaBp: "80", heartRate: "72", spo2: "98%", temp: "98.6°F" },
+      ayushParameters: { prakriti: "Pitta-Kapha", agni: "Sama Agni", koshtha: "Madhyama" }
     };
 
-    fetch("http://localhost:8080/api/doctor/register-op", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newPatient.name,
-        age: newPatient.age,
-        gender: newPatient.gender,
-        phone: newPatient.phone,
-        department: newPatient.department,
-        hospital: newPatient.hospital
-      })
-    }).catch(err => console.log("Backend offline, doctor registration saved locally:", err));
-
     setDoctorQueue(prev => [newPatient, ...prev]);
-    setSelectedPatientToken(newToken);
-    alert(`New OP Patient [${newToken}] ${pName.trim()} registered directly at Doctor Station and saved to Backend!`);
+    handleSelectPatientFromQueue(newPatient);
   };
 
   const handleAcceptSummary = () => {
-    setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, status: 'confirmed' } : p));
+    setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, status: 'Completed', summaryStatus: 'accepted' } : p));
     alert(`Summary for ${activePatient.name} accepted and confirmed into EHR record.`);
   };
 
@@ -165,26 +192,37 @@ export const DoctorPortalPage = ({ onLogout }) => {
     alert("Doctor edits saved successfully.");
   };
 
-  const handleConfirmReject = (reason) => {
-    setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, status: 'rejected' } : p));
-    alert(`Patient ${activePatient.name} sent for re-interview. Reason: ${reason}`);
-  };
+  // Filter caseload patients
+  const filteredCaseload = doctorQueue.filter(p => {
+    if (!p) return false;
+    if (caseloadFilter === 'today') {
+      return !p.isHomeBooked || p.status === 'In Queue' || p.status === 'Confirmed';
+    }
+    if (caseloadFilter === 'upcoming') {
+      return p.isHomeBooked || (p.status && p.status.toLowerCase().includes('upcoming'));
+    }
+    return true;
+  });
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col md:flex-row font-sans">
-      {/* UNIFIED DARK LEFT SIDEBAR NAVIGATION (DESKTOP ONLY - HIDDEN ON MOBILE/PHONE VIEW) */}
+    <div className="h-screen w-screen bg-stone-950 text-stone-100 flex flex-col md:flex-row overflow-hidden font-sans">
+      {/* UNIFIED DARK LEFT SIDEBAR NAVIGATION */}
       <aside className="hidden md:flex md:flex-col md:w-72 bg-stone-900 text-white p-5 justify-between shrink-0 shadow-2xl border-r border-stone-800 sticky top-0 h-screen overflow-y-auto">
         <div className="space-y-6">
           {/* Doctor Profile Card */}
           <div className="flex items-center gap-3 border-b border-stone-800 pb-5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-emerald-500/20">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-emerald-500/20 shrink-0">
               <Stethoscope className="w-6 h-6" />
             </div>
-            <div>
-              <h2 className="font-extrabold text-sm text-white">Dr. V. S. Ramachandran</h2>
-              <div className="text-[11px] text-stone-400">Senior Physician • OPD Room #4</div>
-              <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5" /> Doctor Session Active
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h2 className="font-extrabold text-sm text-white truncate">{currentDoctor.name}</h2>
+                <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-800">{currentDoctor.id}</span>
+              </div>
+              <div className="text-[11px] text-stone-300 truncate">{currentDoctor.spec}</div>
+              <div className="text-[10px] text-emerald-400 font-medium truncate">{currentDoctor.hospital}</div>
+              <div className="text-[10px] text-stone-400 font-semibold flex items-center gap-1 mt-0.5">
+                <ShieldCheck className="w-3 h-3 text-emerald-400" /> Dedicated Station Active
               </div>
             </div>
           </div>
@@ -302,7 +340,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
         </div>
       </aside>
 
-      {/* MAIN CLINICAL WORKSPACE CONTENT (ADMIN STABLE DARK THEME) */}
+      {/* MAIN CLINICAL WORKSPACE CONTENT */}
       <main className="flex-1 p-4 md:p-8 space-y-6 overflow-y-auto bg-stone-950">
 
         {/* VIEW 1: 360° DOCTOR PORTAL */}
@@ -322,12 +360,18 @@ export const DoctorPortalPage = ({ onLogout }) => {
                 </h1>
               </div>
 
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <button
+                  onClick={() => setHomeModalOpen(true)}
+                  className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md transition flex items-center gap-1.5"
+                >
+                  <Home className="w-4 h-4" /> Book Home OP (+1)
+                </button>
                 <button
                   onClick={handleRegisterDoctorOp}
                   className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition flex items-center gap-1.5"
                 >
-                  <UserPlus className="w-4 h-4" /> Register New OP (+1)
+                  <UserPlus className="w-4 h-4" /> Walk-in OP (+1)
                 </button>
                 <button
                   onClick={handleRunAiAnalysis}
@@ -427,114 +471,144 @@ export const DoctorPortalPage = ({ onLogout }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent p-4 flex flex-col justify-end text-white">
                     <span className="text-[10px] uppercase font-mono font-bold text-emerald-400 tracking-wider">AI Medical Diagnosis Engine</span>
                     <h3 className="font-bold text-sm">Clinical EHR & Voice Tele-Intake Integration</h3>
-                    <p className="text-[11px] text-stone-300">Synchronized live with Spring Boot REST Backend H2 DB.</p>
+                    <p className="text-[11px] text-stone-300">
+                      Synchronized live with Spring Boot MySQL DB • {isRecordUnlocked ? <span className="text-emerald-400 font-bold">Privacy Shield Unlocked</span> : <span className="text-amber-400 font-bold">5-Min Consent Guard Active</span>}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Right Pane: Clinical Intake EHR Workspace */}
+              {/* Right Pane: Clinical Intake EHR Workspace WRAPPED IN PRIVACY SHIELD */}
               <div className="lg:col-span-8 bg-stone-900 border border-stone-800 rounded-2xl shadow-lg flex flex-col min-h-[640px] overflow-hidden">
-                <Screen12PatientHeader
+                <PatientPrivacyShield
                   activePatient={activePatient}
-                  onSaveEdits={handleSaveEdits}
-                  onOpenRejectModal={() => setRejectModalOpen(true)}
-                  onAcceptSummary={handleAcceptSummary}
-                />
+                  onUnlockedChange={setIsRecordUnlocked}
+                >
+                  <Screen12PatientHeader
+                    activePatient={activePatient}
+                    onSaveEdits={handleSaveEdits}
+                    onOpenRejectModal={() => setRejectModalOpen(true)}
+                    onAcceptSummary={handleAcceptSummary}
+                  />
 
-                {/* Doctor Clinical Tabs */}
-                <div className="border-b border-stone-800 px-5 flex items-center gap-5 text-xs font-semibold bg-stone-950 overflow-x-auto">
-                  <button
-                    onClick={() => setActiveDoctorTab('summary')}
-                    className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
-                      activeDoctorTab === 'summary' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    <FileText className="w-4 h-4" /> Clinical Summary (Editable)
-                  </button>
-                  <button
-                    onClick={() => setActiveDoctorTab('evidence')}
-                    className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
-                      activeDoctorTab === 'evidence' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    <Split className="w-4 h-4" /> Side-by-Side Evidence (OCR / Raw Intake)
-                  </button>
-                  <button
-                    onClick={() => setActiveDoctorTab('timeline')}
-                    className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
-                      activeDoctorTab === 'timeline' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    <Calendar className="w-4 h-4" /> Document Timeline & Lab Values
-                  </button>
-                  {activePatient?.ayushMode && (
+                  {/* Doctor Clinical Tabs */}
+                  <div className="border-b border-stone-800 px-5 flex items-center gap-5 text-xs font-semibold bg-stone-950 overflow-x-auto">
                     <button
-                      onClick={() => setActiveDoctorTab('ayush')}
+                      onClick={() => setActiveDoctorTab('summary')}
                       className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
-                        activeDoctorTab === 'ayush' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
+                        activeDoctorTab === 'summary' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
                       }`}
                     >
-                      <Leaf className="w-4 h-4" /> Dashavidha Pariksha
+                      <FileText className="w-4 h-4" /> Clinical Summary (Editable)
                     </button>
-                  )}
-                </div>
+                    <button
+                      onClick={() => setActiveDoctorTab('evidence')}
+                      className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
+                        activeDoctorTab === 'evidence' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
+                      }`}
+                    >
+                      <Split className="w-4 h-4" /> Side-by-Side Evidence (OCR / Raw Intake)
+                    </button>
+                    <button
+                      onClick={() => setActiveDoctorTab('timeline')}
+                      className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
+                        activeDoctorTab === 'timeline' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
+                      }`}
+                    >
+                      <Calendar className="w-4 h-4" /> Document Timeline & Lab Values
+                    </button>
+                    {activePatient?.ayushMode && (
+                      <button
+                        onClick={() => setActiveDoctorTab('ayush')}
+                        className={`py-3.5 border-b-2 flex items-center gap-1.5 transition ${
+                          activeDoctorTab === 'ayush' ? 'border-emerald-500 text-emerald-400 font-bold' : 'border-transparent text-stone-400 hover:text-stone-200'
+                        }`}
+                      >
+                        <Leaf className="w-4 h-4" /> Dashavidha Pariksha
+                      </button>
+                    )}
+                  </div>
 
-                {/* Tab Body */}
-                <div className="p-6 flex-1 overflow-y-auto space-y-4">
-                  {activeDoctorTab === 'summary' && (
-                    <Screen13ClinicalSummaryEdit
-                      activePatient={activePatient}
-                      editableHpi={editableHpi}
-                      setEditableHpi={setEditableHpi}
-                      editableCc={editableCc}
-                      setEditableCc={setEditableCc}
-                    />
-                  )}
-                  {activeDoctorTab === 'evidence' && (
-                    <Screen14EvidenceSideBySide activePatient={activePatient} />
-                  )}
-                  {activeDoctorTab === 'timeline' && (
-                    <Screen15TimelineAbnormalDoctor activePatient={activePatient} />
-                  )}
-                  {activeDoctorTab === 'ayush' && (
-                    <div className="space-y-4 text-xs">
-                      <h4 className="font-extrabold text-sm text-emerald-400 flex items-center gap-2">
-                        <Leaf className="w-4 h-4" /> Dashavidha Pariksha Ayurvedic Assessment
-                      </h4>
-                      <div className="p-4 bg-stone-950 rounded-2xl border border-emerald-900/60 space-y-3 text-stone-200">
-                        <div><strong className="text-emerald-400">Prakriti (Body Constitution):</strong> {activePatient?.ayushParameters?.prakriti || "Vata-Pitta"}</div>
-                        <div><strong className="text-emerald-400">Agni (Digestive Fire):</strong> {activePatient?.ayushParameters?.agni || "Manda Agni"}</div>
-                        <div><strong className="text-emerald-400">Koshtha (Bowel Habit):</strong> {activePatient?.ayushParameters?.koshtha || "Krura Koshtha"}</div>
-                        <div><strong className="text-emerald-400">Sleep / Nidra:</strong> {activePatient?.ayushParameters?.sleep || "Alpa Nidra"}</div>
+                  {/* Tab Body */}
+                  <div className="p-6 flex-1 overflow-y-auto space-y-4">
+                    {activeDoctorTab === 'summary' && (
+                      <Screen13ClinicalSummaryEdit
+                        activePatient={activePatient}
+                        editableHpi={editableHpi}
+                        setEditableHpi={setEditableHpi}
+                        editableCc={editableCc}
+                        setEditableCc={setEditableCc}
+                      />
+                    )}
+                    {activeDoctorTab === 'evidence' && (
+                      <Screen14EvidenceSideBySide activePatient={activePatient} />
+                    )}
+                    {activeDoctorTab === 'timeline' && (
+                      <Screen15TimelineAbnormalDoctor activePatient={activePatient} />
+                    )}
+                    {activeDoctorTab === 'ayush' && (
+                      <div className="space-y-4 text-xs">
+                        <h4 className="font-extrabold text-sm text-emerald-400 flex items-center gap-2">
+                          <Leaf className="w-4 h-4" /> Dashavidha Pariksha Ayurvedic Assessment
+                        </h4>
+                        <div className="p-4 bg-stone-950 rounded-2xl border border-emerald-900/60 space-y-3 text-stone-200">
+                          <div><strong className="text-emerald-400">Prakriti (Body Constitution):</strong> {activePatient?.ayushParameters?.prakriti || "Vata-Pitta"}</div>
+                          <div><strong className="text-emerald-400">Agni (Digestive Fire):</strong> {activePatient?.ayushParameters?.agni || "Manda Agni"}</div>
+                          <div><strong className="text-emerald-400">Koshtha (Bowel Habit):</strong> {activePatient?.ayushParameters?.koshtha || "Krura Koshtha"}</div>
+                          <div><strong className="text-emerald-400">Sleep / Nidra:</strong> {activePatient?.ayushParameters?.sleep || "Alpa Nidra"}</div>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
+                </PatientPrivacyShield>
               </div>
             </div>
           </>
         )}
 
-        {/* VIEW 2: MY PATIENTS CASELOAD */}
+        {/* VIEW 2: MY PATIENTS CASELOAD (WITH TODAY'S SESSIONS & UPCOMING PATIENTS FILTERS) */}
         {activeNavTab === 'caseload' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-md flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-                  <Users className="w-6 h-6 text-emerald-400" /> My Patients Caseload ({doctorQueue.length})
+                  <Users className="w-6 h-6 text-emerald-400" /> My Patients Caseload ({filteredCaseload.length})
                 </h1>
-                <p className="text-xs text-stone-400 mt-1">Complete roster of active OPD consultations and hospital visits.</p>
+                <p className="text-xs text-stone-400 mt-1">Complete roster of active OPD consultations, today's sessions, and upcoming home bookings.</p>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-emerald-950 text-emerald-300 text-xs font-mono font-bold rounded-full border border-emerald-800">
-                  Active OP Load: 100% Synced
-                </span>
+
+              {/* Caseload Filter Buttons */}
+              <div className="flex items-center gap-2 bg-stone-950 p-1 rounded-xl border border-stone-800 text-xs">
+                <button
+                  onClick={() => setCaseloadFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg transition font-bold ${
+                    caseloadFilter === 'all' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  All Patients ({doctorQueue.length})
+                </button>
+                <button
+                  onClick={() => setCaseloadFilter('today')}
+                  className={`px-3 py-1.5 rounded-lg transition font-bold ${
+                    caseloadFilter === 'today' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  Today's Sessions
+                </button>
+                <button
+                  onClick={() => setCaseloadFilter('upcoming')}
+                  className={`px-3 py-1.5 rounded-lg transition font-bold ${
+                    caseloadFilter === 'upcoming' ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  Upcoming Patients (Home Booked)
+                </button>
               </div>
             </div>
 
-            {/* Grid of 10 Patients */}
+            {/* Grid of Patients */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {doctorQueue.map((patient, idx) => {
+              {filteredCaseload.map((patient, idx) => {
                 const risk = getPatientRiskMetrics(patient);
                 return (
                   <div key={idx} className={`rounded-2xl border p-5 shadow-md transition space-y-3 flex flex-col justify-between ${
@@ -547,13 +621,20 @@ export const DoctorPortalPage = ({ onLogout }) => {
                         <span className="font-mono text-xs font-bold px-2 py-0.5 bg-stone-950 text-emerald-400 rounded border border-stone-800">
                           {patient.token}
                         </span>
-                        <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                          risk.riskLevel === 'HIGH' ? 'bg-rose-950 text-rose-300 border border-rose-800 animate-pulse' :
-                          patient.ayushMode ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
-                          'bg-stone-800 text-stone-300 border border-stone-700'
-                        }`}>
-                          {patient.status || "In Queue"}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {patient.isHomeBooked && (
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
+                              HOME BOOKED
+                            </span>
+                          )}
+                          <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                            risk.riskLevel === 'HIGH' ? 'bg-rose-950 text-rose-300 border border-rose-800 animate-pulse' :
+                            patient.ayushMode ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+                            'bg-stone-800 text-stone-300 border border-stone-700'
+                          }`}>
+                            {patient.status || "In Queue"}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between gap-2">
@@ -570,7 +651,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
                       <div className="text-xs text-stone-400 flex items-center gap-2">
                         <span>{patient.age}y / {patient.gender}</span>
                         <span>•</span>
-                        <span>Phone: <strong className="text-stone-200 font-mono">{patient.phone}</strong></span>
+                        <span>Time: <strong className="text-stone-200 font-mono">{patient.time || '10:30 AM'}</strong></span>
                       </div>
 
                       <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs text-stone-300 space-y-1">
@@ -589,7 +670,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
                       }}
                       className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition mt-3"
                     >
-                      Open Clinical EHR File <ArrowRight className="w-3.5 h-3.5" />
+                      <Lock className="w-3.5 h-3.5" /> Start Consultation (Consent Protected)
                     </button>
                   </div>
                 );
@@ -606,10 +687,10 @@ export const DoctorPortalPage = ({ onLogout }) => {
                 <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
                   <Calendar className="w-6 h-6 text-emerald-400" /> Today's OPD Appointments Schedule
                 </h1>
-                <p className="text-xs text-stone-400 mt-1">Confirmed appointments and scheduled follow-ups for OPD Room #4.</p>
+                <p className="text-xs text-stone-400 mt-1">Confirmed appointments, home bookings, and scheduled follow-ups for OPD Room #4.</p>
               </div>
               <span className="px-3 py-1 bg-emerald-950 text-emerald-300 font-mono font-bold text-xs rounded-full border border-emerald-800">
-                {appointments.length + doctorQueue.length} Scheduled Today
+                {appointments.length + doctorQueue.length} Scheduled
               </span>
             </div>
 
@@ -620,21 +701,29 @@ export const DoctorPortalPage = ({ onLogout }) => {
                     <th className="p-4">Time Slot</th>
                     <th className="p-4">Patient Name</th>
                     <th className="p-4">Department / Room</th>
-                    <th className="p-4">Type</th>
+                    <th className="p-4">Booking Mode</th>
                     <th className="p-4">Status</th>
                     <th className="p-4 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/60 text-stone-200">
-                  {doctorQueue.slice(0, 5).map((p, idx) => (
+                  {doctorQueue.map((p, idx) => (
                     <tr key={idx} className="hover:bg-stone-800/50 transition">
-                      <td className="p-4 font-mono font-bold text-emerald-400">{p.time || `0${9 + idx}:30 AM`}</td>
+                      <td className="p-4 font-mono font-bold text-emerald-400">{p.time || `09:30 AM`}</td>
                       <td className="p-4 font-bold text-white">{p.name} ({p.age}y/{p.gender})</td>
                       <td className="p-4 text-stone-300">{p.department}</td>
-                      <td className="p-4 text-stone-300 font-semibold">{idx % 2 === 0 ? "OPD Consultation" : "Ayush Follow-up"}</td>
+                      <td className="p-4">
+                        {p.isHomeBooked ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-950 text-blue-300 border border-blue-800">
+                            HOME ONLINE OP
+                          </span>
+                        ) : (
+                          <span className="text-stone-400 font-medium">Kiosk Walk-in</span>
+                        )}
+                      </td>
                       <td className="p-4">
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                          CONFIRMED
+                          {p.status || "CONFIRMED"}
                         </span>
                       </td>
                       <td className="p-4 text-right">
@@ -643,9 +732,9 @@ export const DoctorPortalPage = ({ onLogout }) => {
                             handleSelectPatientFromQueue(p);
                             setActiveNavTab('360_portal');
                           }}
-                          className="px-3 py-1 bg-stone-950 hover:bg-stone-800 text-emerald-400 border border-stone-800 rounded-lg text-xs font-bold transition"
+                          className="px-3 py-1 bg-stone-950 hover:bg-stone-800 text-emerald-400 border border-stone-800 rounded-lg text-xs font-bold transition flex items-center gap-1 ml-auto"
                         >
-                          View Consultation
+                          <Lock className="w-3 h-3" /> Consult (Locked)
                         </button>
                       </td>
                     </tr>
@@ -674,7 +763,7 @@ export const DoctorPortalPage = ({ onLogout }) => {
                   <FileText className="w-5 h-5" />
                 </div>
                 <h3 className="font-extrabold text-white text-sm">FHIR R4 Diagnostic Bundles</h3>
-                <p className="text-xs text-stone-400">Standardized HL7/FHIR JSON bundles generated for all 10 OPD consultations.</p>
+                <p className="text-xs text-stone-400">Standardized HL7/FHIR JSON bundles generated for all OPD consultations.</p>
                 <button onClick={() => setFhirModalOpen(true)} className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-stone-200 font-bold border border-stone-800 rounded-xl text-xs transition">
                   Export All FHIR Bundles
                 </button>
@@ -698,79 +787,42 @@ export const DoctorPortalPage = ({ onLogout }) => {
                 <h3 className="font-extrabold text-white text-sm">AI Accuracy & Red Flag Logs</h3>
                 <p className="text-xs text-stone-400">Diagnostic confidence rating stats (avg 94.2%) and automated red flag triage audit.</p>
                 <button onClick={() => alert("AI Clinical Accuracy Audit generated.")} className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-stone-200 font-bold border border-stone-800 rounded-xl text-xs transition">
-                  View AI Performance Logs
+                  Generate Clinical Audit
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* VIEW 5: SETTINGS */}
-        {activeNavTab === 'settings' && (
-          <div className="space-y-6 animate-in fade-in duration-300 max-w-3xl">
-            <div className="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-md">
-              <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-                <Settings className="w-6 h-6 text-emerald-400" /> Doctor Portal Station Settings
-              </h1>
-              <p className="text-xs text-stone-400 mt-1">Configure OPD station preferences, AI assist sensitivity, and EHR sync.</p>
-            </div>
-
-            <div className="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-md space-y-4 text-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-                <div>
-                  <h4 className="font-bold text-white">Automated AI Clinical Summary Generation</h4>
-                  <p className="text-stone-400">Synthesize doctor-editable SOCRATES notes instantly from kiosk speech intake.</p>
-                </div>
-                <input type="checkbox" defaultChecked className="w-4 h-4 accent-emerald-500" />
-              </div>
-
-              <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-                <div>
-                  <h4 className="font-bold text-white">Spring Boot REST H2 Live Database Sync</h4>
-                  <p className="text-stone-400">Synchronize OPD queue changes directly with backend API port 8080.</p>
-                </div>
-                <input type="checkbox" defaultChecked className="w-4 h-4 accent-emerald-500" />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-white">AYUSH Prakriti & Dashavidha Assessment Panel</h4>
-                  <p className="text-stone-400">Display Ayurvedic Prakriti, Agni, and Koshtha clinical fields for relevant patients.</p>
-                </div>
-                <input type="checkbox" defaultChecked className="w-4 h-4 accent-emerald-500" />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* VIEW 6: HELP CENTER */}
-        {activeNavTab === 'help' && (
-          <div className="space-y-6 animate-in fade-in duration-300 max-w-4xl">
-            <div className="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-md">
-              <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-                <HelpCircle className="w-6 h-6 text-emerald-400" /> Doctor Help Center & Knowledge Base
-              </h1>
-              <p className="text-xs text-stone-400 mt-1">Guides, voice-kiosk intake tutorials, and technical support.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
-              <div className="bg-stone-900 p-5 rounded-2xl border border-stone-800 shadow-md space-y-2">
-                <h3 className="font-extrabold text-white text-sm">How to Accept or Edit Clinical Summaries</h3>
-                <p className="text-stone-300">Select any patient from the queue, review the AI-synthesized SOCRATES notes, make any edits directly in the text fields, and click "Accept Summary" to save to the central EHR record.</p>
-              </div>
-
-              <div className="bg-stone-900 p-5 rounded-2xl border border-stone-800 shadow-md space-y-2">
-                <h3 className="font-extrabold text-white text-sm">Using OP Token Enquiry Search</h3>
-                <p className="text-stone-300">Enter any patient's OP token (e.g. OPD-101) into the sidebar search box to instantly query Spring Boot REST backend database and load their full clinical file.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Global Modals */}
-        <Screen16FhirModal isOpen={fhirModalOpen} onClose={() => setFhirModalOpen(false)} activePatient={activePatient} />
-        <ReinterviewModal isOpen={rejectModalOpen} onClose={() => setRejectModalOpen(false)} onConfirmReject={handleConfirmReject} />
       </main>
+
+      {/* MODALS */}
+      {fhirModalOpen && (
+        <Screen16FhirModal
+          isOpen={fhirModalOpen}
+          onClose={() => setFhirModalOpen(false)}
+          activePatient={activePatient}
+        />
+      )}
+
+      {rejectModalOpen && (
+        <ReinterviewModal
+          isOpen={rejectModalOpen}
+          onClose={() => setRejectModalOpen(false)}
+          onConfirmReject={(reason) => {
+            setDoctorQueue(prev => prev.map(p => p.token === activePatient.token ? { ...p, status: 'rejected' } : p));
+            alert(`Patient ${activePatient.name} sent for re-interview.`);
+            setRejectModalOpen(false);
+          }}
+        />
+      )}
+
+      {homeModalOpen && (
+        <HomeAppointmentModal
+          isOpen={homeModalOpen}
+          onClose={() => setHomeModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

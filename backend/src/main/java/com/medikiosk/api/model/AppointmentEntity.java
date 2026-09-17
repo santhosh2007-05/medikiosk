@@ -14,15 +14,23 @@ public class AppointmentEntity {
     @Column(unique = true)
     private String appointmentNumber;
 
+    private String token;
     private String patientName;
     private String patientPhone;
+    private String patientAge;
+    private String patientGender;
+    private String aadhaar;
     private String doctorName;
     private String department;
     private String hospitalName;
     private String appointmentDate;
     private String timeSlot;
+    
+    @Column(length = 2000)
+    private String chiefComplaint;
+
     private String status = "Confirmed";
-    private String appointmentType = "First Visit";
+    private String appointmentType = "Home Booked OP";
     private LocalDateTime bookedAt = LocalDateTime.now();
 
     public AppointmentEntity() {}
@@ -44,11 +52,23 @@ public class AppointmentEntity {
     public String getAppointmentNumber() { return appointmentNumber; }
     public void setAppointmentNumber(String appointmentNumber) { this.appointmentNumber = appointmentNumber; }
 
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+
     public String getPatientName() { return patientName; }
     public void setPatientName(String patientName) { this.patientName = patientName; }
 
     public String getPatientPhone() { return patientPhone; }
     public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
+
+    public String getPatientAge() { return patientAge; }
+    public void setPatientAge(String patientAge) { this.patientAge = patientAge; }
+
+    public String getPatientGender() { return patientGender; }
+    public void setPatientGender(String patientGender) { this.patientGender = patientGender; }
+
+    public String getAadhaar() { return aadhaar; }
+    public void setAadhaar(String aadhaar) { this.aadhaar = aadhaar; }
 
     public String getDoctorName() { return doctorName; }
     public void setDoctorName(String doctorName) { this.doctorName = doctorName; }
@@ -64,6 +84,9 @@ public class AppointmentEntity {
 
     public String getTimeSlot() { return timeSlot; }
     public void setTimeSlot(String timeSlot) { this.timeSlot = timeSlot; }
+
+    public String getChiefComplaint() { return chiefComplaint; }
+    public void setChiefComplaint(String chiefComplaint) { this.chiefComplaint = chiefComplaint; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

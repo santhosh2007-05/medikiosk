@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#065f46" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="10" y="10" width="780" height="680" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+  <rect x="10" y="10" width="780" height="90" rx="12" fill="url(#headerGrad)"/>
+  <rect x="10" y="80" width="780" height="20" fill="url(#headerGrad)"/>
+  
+  <text x="35" y="45" font-family="Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="1">GOVERNMENT OF TAMIL NADU • HEALTH SYSTEM</text>
+  <text x="35" y="70" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#a7f3d0">GOVERNMENT ROYAPETTAH HOSPITAL, CHENNAI</text>
+  <text x="640" y="45" font-family="Courier, monospace" font-size="11" font-weight="bold" fill="#ffffff">NABL ACCREDITED</text>
+  <text x="640" y="65" font-family="Courier, monospace" font-size="10" fill="#d1fae5">ABDM CLOUD EHR</text>
+
+  <rect x="30" y="115" width="740" height="40" rx="6" fill="#f1f5f9" stroke="#e2e8f0"/>
+  <text x="45" y="140" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">THYROID FUNCTION TEST (TFT) PROFILE</text>
+  <text x="600" y="140" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#059669">DATE: 2026-09-12</text>
+
+  <g transform="translate(30, 175)">
+    <rect x="0" y="0" width="740" height="65" rx="8" fill="#fafafa" stroke="#e5e7eb"/>
+    <text x="15" y="24" font-family="Arial, sans-serif" font-size="11" fill="#64748b">PATIENT NAME &amp; ABHA ID:</text>
+    <text x="190" y="24" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">TRISHA KRISHNAN (Age 32, Female, ABHA: 91-4412-9901)</text>
+
+    <text x="15" y="48" font-family="Arial, sans-serif" font-size="11" fill="#64748b">CONSULTING PHYSICIAN:</text>
+    <text x="190" y="48" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#047857">Dr. R. Kavitha, MD, DNB (Endocrine)</text>
+  </g>
+
+  <g transform="translate(0, 265)">
+    <rect x="30" y="-18" width="740" height="28" fill="#0f172a" rx="4"/>
+    <text x="40" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">TEST / PARAMETER</text>
+    <text x="280" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">RESULT</text>
+    <text x="370" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">UNITS</text>
+    <text x="460" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">REFERENCE RANGE</text>
+    <text x="590" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">CLINICAL FLAG</text>
+  </g>
+
+  
+      <g transform="translate(0, 300)">
+        <rect x="30" y="-18" width="740" height="26" fill="#f8fafc" />
+        <text x="40" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">TSH - Thyroid Stimulating Hormone</text>
+        <text x="280" y="0" font-family="Courier, monospace" font-size="12" font-weight="bold" fill="#dc2626">9.45</text>
+        <text x="370" y="0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">uIU/mL</text>
+        <text x="460" y="0" font-family="Arial, sans-serif" font-size="11" fill="#475569">0.35 - 4.94</text>
+        <rect x="580" y="-14" width="180" height="18" rx="4" fill="#fee2e2" />
+        <text x="590" y="0" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#dc2626">HIGH (Primary Hypothyroidism)</text>
+      </g>
+    
+      <g transform="translate(0, 330)">
+        <rect x="30" y="-18" width="740" height="26" fill="#ffffff" />
+        <text x="40" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">Free T3 (Triiodothyronine)</text>
+        <text x="280" y="0" font-family="Courier, monospace" font-size="12" font-weight="bold" fill="#dc2626">2.10</text>
+        <text x="370" y="0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">pg/mL</text>
+        <text x="460" y="0" font-family="Arial, sans-serif" font-size="11" fill="#475569">2.30 - 4.20</text>
+        <rect x="580" y="-14" width="180" height="18" rx="4" fill="#fee2e2" />
+        <text x="590" y="0" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#dc2626">LOW</text>
+      </g>
+    
+      <g transform="translate(0, 360)">
+        <rect x="30" y="-18" width="740" height="26" fill="#f8fafc" />
+        <text x="40" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">Free T4 (Thyroxine)</text>
+        <text x="280" y="0" font-family="Courier, monospace" font-size="12" font-weight="bold" fill="#dc2626">0.68</text>
+        <text x="370" y="0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">ng/dL</text>
+        <text x="460" y="0" font-family="Arial, sans-serif" font-size="11" fill="#475569">0.89 - 1.76</text>
+        <rect x="580" y="-14" width="180" height="18" rx="4" fill="#fee2e2" />
+        <text x="590" y="0" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#dc2626">LOW</text>
+      </g>
+    
+      <g transform="translate(0, 390)">
+        <rect x="30" y="-18" width="740" height="26" fill="#ffffff" />
+        <text x="40" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">Anti-TPO Antibodies</text>
+        <text x="280" y="0" font-family="Courier, monospace" font-size="12" font-weight="bold" fill="#dc2626">142</text>
+        <text x="370" y="0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">IU/mL</text>
+        <text x="460" y="0" font-family="Arial, sans-serif" font-size="11" fill="#475569">< 34</text>
+        <rect x="580" y="-14" width="180" height="18" rx="4" fill="#fee2e2" />
+        <text x="590" y="0" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#dc2626">HIGH (Hashimoto Thyroiditis)</text>
+      </g>
+    
+
+  <g transform="translate(30, 560)">
+    <rect x="0" y="0" width="740" height="100" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="15" y="25" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0f172a">CLINICAL IMPRESSION / DIAGNOSIS:</text>
+    <text x="240" y="25" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#b91c1c">Primary Autoimmune Hypothyroidism (Hashimoto Disease)</text>
+
+    <text x="15" y="55" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0f172a">RECOMMENDED MEDICATION / AYUSH RX:</text>
+    <text x="15" y="75" font-family="Arial, sans-serif" font-size="10" font-family="Courier, monospace" fill="#334155">Tab Thyronorm (Levothyroxine) 75mcg OD morning empty stomach + Kanchnar Guggulu 2 tabs BD</text>
+  </g>
+</svg>
