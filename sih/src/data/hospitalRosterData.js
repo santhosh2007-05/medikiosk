@@ -110,14 +110,14 @@ export const getHospitalRoster = (hospitalName, districtName = "Chennai") => {
   const dIdx1 = hIdx * 2;
   const dIdx2 = hIdx * 2 + 1;
 
-  const doc1NameBase = SOUTH_INDIAN_NAME_BASES[dIdx1 % SOUTH_INDIAN_NAME_BASES.length];
+  const doc1NameBase = dIdx1 === 0 ? "V. S. Ramachandran" : SOUTH_INDIAN_NAME_BASES[dIdx1 % SOUTH_INDIAN_NAME_BASES.length];
   const doc2NameBase = SOUTH_INDIAN_NAME_BASES[dIdx2 % SOUTH_INDIAN_NAME_BASES.length];
 
   const doc1 = {
     id: `DOC-${1001 + dIdx1}`,
-    name: `Dr. ${doc1NameBase} ${String.fromCharCode(65 + (dIdx1 % 26))}.`,
-    qualification: QUALIFICATIONS[dIdx1 % QUALIFICATIONS.length],
-    spec: SPECIALTIES[dIdx1 % SPECIALTIES.length],
+    name: dIdx1 === 0 ? "Dr. V. S. Ramachandran, MD" : `Dr. ${doc1NameBase} ${String.fromCharCode(65 + (dIdx1 % 26))}.`,
+    qualification: dIdx1 === 0 ? "MD (General Medicine & Cardiology)" : QUALIFICATIONS[dIdx1 % QUALIFICATIONS.length],
+    spec: dIdx1 === 0 ? "Cardiology & Ayush Integrative Care" : SPECIALTIES[dIdx1 % SPECIALTIES.length],
     role: "Senior Consultant Doctor",
     curedCount: 18 + (dIdx1 % 10),
     totalCount: 20 + (dIdx1 % 10),
@@ -165,16 +165,16 @@ export const getHospitalRoster = (hospitalName, districtName = "Chennai") => {
   const patients = [];
   for (let pSlot = 0; pSlot < 6; pSlot++) {
     const pIdx = hIdx * 6 + pSlot;
-    const patNameBase = SOUTH_INDIAN_NAME_BASES[(pIdx + 50) % SOUTH_INDIAN_NAME_BASES.length];
+    const patNameBase = SOUTH_INDIAN_NAME_BASES[pIdx % SOUTH_INDIAN_NAME_BASES.length];
     const diseaseTemplate = DISEASE_CATEGORIES[pIdx % DISEASE_CATEGORIES.length];
 
     patients.push({
       id: `PAT-${1001 + pIdx}`,
       token: `OPD-${1001 + pIdx}`,
-      name: `${patNameBase.toUpperCase()} ${String.fromCharCode(65 + (pIdx % 26))}.`,
-      age: `${28 + (pIdx % 50)}`,
-      gender: pIdx % 2 === 0 ? "Male" : "Female",
-      phone: `9840${String(100000 + pIdx).padStart(6, '0')}`,
+      name: pIdx === 0 ? "JOSEPH VIJAY" : `${patNameBase.toUpperCase()} ${String.fromCharCode(65 + (pIdx % 26))}.`,
+      age: pIdx === 0 ? "36" : `${28 + (pIdx % 50)}`,
+      gender: pIdx === 0 ? "Male" : (pIdx % 2 === 0 ? "Male" : "Female"),
+      phone: pIdx === 0 ? "9840123456" : `9840${String(100000 + pIdx).padStart(6, '0')}`,
       category: pIdx % 5 === 0 ? "IAS / Public Dignitary" : (pIdx % 3 === 0 ? "Popular Creator / Influencer" : "South Indian Public Resident"),
       diseaseCategory: diseaseTemplate.category,
       chiefComplaint: `Clinical symptom presentation #${(pIdx % 9) + 1} requiring consultation`,
@@ -239,19 +239,19 @@ export const getAllNetworkPatients = () => {
   ALL_380_TN_HOSPITALS.forEach((h, hIdx) => {
     for (let pSlot = 0; pSlot < 6; pSlot++) {
       const pIdx = hIdx * 6 + pSlot;
-      const patNameBase = SOUTH_INDIAN_NAME_BASES[(pIdx + 50) % SOUTH_INDIAN_NAME_BASES.length];
+      const patNameBase = SOUTH_INDIAN_NAME_BASES[pIdx % SOUTH_INDIAN_NAME_BASES.length];
       const diseaseTemplate = DISEASE_CATEGORIES[pIdx % DISEASE_CATEGORIES.length];
 
-      const doc1NameBase = SOUTH_INDIAN_NAME_BASES[(hIdx * 2) % SOUTH_INDIAN_NAME_BASES.length];
+      const doc1NameBase = (hIdx * 2) === 0 ? "V. S. Ramachandran" : SOUTH_INDIAN_NAME_BASES[(hIdx * 2) % SOUTH_INDIAN_NAME_BASES.length];
       const doc2NameBase = SOUTH_INDIAN_NAME_BASES[(hIdx * 2 + 1) % SOUTH_INDIAN_NAME_BASES.length];
 
       const patientId = `PAT-${1001 + pIdx}`;
       const username = `pat${1001 + pIdx}`;
       const token = `OPD-${1001 + pIdx}`;
-      const abhaId = `91-${7000 + (pIdx % 2999)}-${1000 + (pIdx % 8999)}-${2000 + (pIdx % 7999)}`;
-      const aadhaar = `${2000 + (pIdx % 7999)}-${3000 + (pIdx % 6999)}-${4000 + (pIdx % 5999)}`;
-      const phone = `9840${String(100000 + pIdx).padStart(6, '0')}`;
-      const patName = `${patNameBase.toUpperCase()} ${String.fromCharCode(65 + (pIdx % 26))}.`;
+      const abhaId = pIdx === 0 ? "91-7829-1092-4412" : `91-${7000 + (pIdx % 2999)}-${1000 + (pIdx % 8999)}-${2000 + (pIdx % 7999)}`;
+      const aadhaar = pIdx === 0 ? "5829-1092-4412" : `${2000 + (pIdx % 7999)}-${3000 + (pIdx % 6999)}-${4000 + (pIdx % 5999)}`;
+      const phone = pIdx === 0 ? "9840123456" : `9840${String(100000 + pIdx).padStart(6, '0')}`;
+      const patName = pIdx === 0 ? "JOSEPH VIJAY" : `${patNameBase.toUpperCase()} ${String.fromCharCode(65 + (pIdx % 26))}.`;
 
       // 1 to 2 Sample medical documents per patient
       const sampleDoc1 = SAMPLE_REPORTS_LIST[pIdx % SAMPLE_REPORTS_LIST.length];
@@ -262,8 +262,8 @@ export const getAllNetworkPatients = () => {
         username: username,
         token: token,
         name: patName,
-        age: `${24 + (pIdx % 54)}`,
-        gender: pIdx % 2 === 0 ? "Male" : "Female",
+        age: pIdx === 0 ? "36" : `${24 + (pIdx % 54)}`,
+        gender: pIdx === 0 ? "Male" : (pIdx % 2 === 0 ? "Male" : "Female"),
         phone: phone,
         aadhaar: aadhaar,
         abhaId: abhaId,
@@ -364,15 +364,15 @@ export const getAll760Doctors = () => {
     const dIdx1 = hIdx * 2;
     const dIdx2 = hIdx * 2 + 1;
 
-    const doc1NameBase = SOUTH_INDIAN_NAME_BASES[dIdx1 % SOUTH_INDIAN_NAME_BASES.length];
+    const doc1NameBase = dIdx1 === 0 ? "V. S. Ramachandran" : SOUTH_INDIAN_NAME_BASES[dIdx1 % SOUTH_INDIAN_NAME_BASES.length];
     const doc2NameBase = SOUTH_INDIAN_NAME_BASES[dIdx2 % SOUTH_INDIAN_NAME_BASES.length];
 
     allDoctors.push({
       id: `DOC-${1001 + dIdx1}`,
-      name: `Dr. ${doc1NameBase} ${String.fromCharCode(65 + (dIdx1 % 26))}.`,
+      name: dIdx1 === 0 ? "Dr. V. S. Ramachandran, MD" : `Dr. ${doc1NameBase} ${String.fromCharCode(65 + (dIdx1 % 26))}.`,
       username: `doc${1001 + dIdx1}`,
-      qualification: QUALIFICATIONS[dIdx1 % QUALIFICATIONS.length],
-      spec: SPECIALTIES[dIdx1 % SPECIALTIES.length],
+      qualification: dIdx1 === 0 ? "MD (General Medicine & Cardiology)" : QUALIFICATIONS[dIdx1 % QUALIFICATIONS.length],
+      spec: dIdx1 === 0 ? "Cardiology & Ayush Integrative Care" : SPECIALTIES[dIdx1 % SPECIALTIES.length],
       role: "Senior Consultant Doctor",
       hospital: h.name,
       district: h.district,

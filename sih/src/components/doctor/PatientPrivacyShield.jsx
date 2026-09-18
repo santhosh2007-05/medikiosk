@@ -19,12 +19,55 @@ export const PatientPrivacyShield = ({
   const [bcryptPreview, setBcryptPreview] = useState('');
   const timerRef = useRef(null);
 
-  // Reset lock state when switching to a different patient
+  // Restore & Persist lock state across page reloads
   useEffect(() => {
+    const token = activePatient?.token || 'OPD-101';
+    setErrorMsg('');
+    setEnteredOtp('');
+
+    // Check localStorage for persisted consent state
+    try {
+      const saved = localStorage.getItem(`consent_state_${token}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const elapsedSec = Math.floor((Date.now() - (parsed.timestamp || Date.now())) / 1000);
+
+        if (parsed.isUnlocked) {
+          const rem = Math.max(0, (parsed.remainingSeconds || 300) - elapsedSec);
+          if (rem > 0) {
+            setIsUnlocked(true);
+            setOtpSent(true);
+            setBcryptPreview(parsed.bcryptHash || '$2a$10$encryptedHash...');
+            setRemainingSeconds(rem);
+            if (onUnlockedChange) onUnlockedChange(true);
+            return;
+          } else {
+            // Expired 5-min window
+            setIsUnlocked(false);
+            setOtpSent(true); // Keep on Enter OTP screen so they can re-verify or resend
+            setRemainingSeconds(0);
+            if (onUnlockedChange) onUnlockedChange(false);
+            return;
+          }
+        }
+
+        // If OTP was sent within the last 15 minutes, keep showing "Enter OTP"
+        if (parsed.otpSent && elapsedSec < 900) {
+          setIsUnlocked(false);
+          setOtpSent(true);
+          setBcryptPreview(parsed.bcryptHash || '$2a$10$encryptedHash...');
+          setRemainingSeconds(300);
+          if (onUnlockedChange) onUnlockedChange(false);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Error reading saved consent state:', e);
+    }
+
+    // Default: Reset to clean initial state
     setIsUnlocked(false);
     setOtpSent(false);
-    setEnteredOtp('');
-    setErrorMsg('');
     setBcryptPreview('');
     setRemainingSeconds(300);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -40,6 +83,15 @@ export const PatientPrivacyShield = ({
           if (prev <= 1) {
             clearInterval(timerRef.current);
             setIsUnlocked(false);
+            const token = activePatient?.token || 'OPD-101';
+            try {
+              localStorage.setItem(`consent_state_${token}`, JSON.stringify({
+                otpSent: true,
+                isUnlocked: false,
+                remainingSeconds: 0,
+                timestamp: Date.now()
+              }));
+            } catch(e) {}
             if (onUnlockedChange) onUnlockedChange(false);
             setErrorMsg('5-Minute Consultation Access Window Expired. Request a new OTP if needed.');
             return 0;
@@ -51,7 +103,7 @@ export const PatientPrivacyShield = ({
       return () => clearInterval(timerRef.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUnlocked]);
+  }, [isUnlocked, activePatient?.token]);
 
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
@@ -62,26 +114,38 @@ export const PatientPrivacyShield = ({
   const handleSendOtp = async () => {
     setIsSendingOtp(true);
     setErrorMsg('');
+    const token = activePatient?.token || 'OPD-101';
 
     try {
       const res = await fetch('http://localhost:8080/api/doctor/consent/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          patientToken: activePatient?.token || 'OPD-101',
+          patientToken: token,
           patientPhone: activePatient?.phone || '9840123456',
           doctorName: 'Dr. V. S. Ramachandran'
         })
       });
 
       const data = await res.json();
+      const hash = data.bcryptHash || '$2a$10$encryptedHash...';
       setOtpSent(true);
-      setBcryptPreview(data.bcryptHash || '$2a$10$encryptedHash...');
+      setBcryptPreview(hash);
+
+      // Persist OTP sent status to localStorage
+      try {
+        localStorage.setItem(`consent_state_${token}`, JSON.stringify({
+          otpSent: true,
+          isUnlocked: false,
+          bcryptHash: hash,
+          timestamp: Date.now()
+        }));
+      } catch(e) {}
 
       // Dispatch global window event so simulated Patient Portal notification drawer pops up
       window.dispatchEvent(new CustomEvent('medikiosk-patient-otp', {
         detail: {
-          patientToken: activePatient?.token,
+          patientToken: token,
           patientName: activePatient?.name,
           patientPhone: activePatient?.phone,
           doctorName: 'Dr. V. S. Ramachandran',
@@ -91,11 +155,22 @@ export const PatientPrivacyShield = ({
 
     } catch (err) {
       console.warn('Backend offline, using simulated OTP dispatch:', err);
+      const hash = '$2a$10$eKj9823kLm8271hskd91...';
       setOtpSent(true);
-      setBcryptPreview('$2a$10$eKj9823kLm8271hskd91...');
+      setBcryptPreview(hash);
+
+      try {
+        localStorage.setItem(`consent_state_${token}`, JSON.stringify({
+          otpSent: true,
+          isUnlocked: false,
+          bcryptHash: hash,
+          timestamp: Date.now()
+        }));
+      } catch(e) {}
+
       window.dispatchEvent(new CustomEvent('medikiosk-patient-otp', {
         detail: {
-          patientToken: activePatient?.token,
+          patientToken: token,
           patientName: activePatient?.name,
           patientPhone: activePatient?.phone,
           doctorName: 'Dr. V. S. Ramachandran',
@@ -116,13 +191,14 @@ export const PatientPrivacyShield = ({
 
     setIsVerifying(true);
     setErrorMsg('');
+    const token = activePatient?.token || 'OPD-101';
 
     try {
       const res = await fetch('http://localhost:8080/api/doctor/consent/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          patientToken: activePatient?.token || 'OPD-101',
+          patientToken: token,
           otp: enteredOtp.trim()
         })
       });
@@ -131,7 +207,17 @@ export const PatientPrivacyShield = ({
 
       if (res.ok && data.unlocked) {
         setIsUnlocked(true);
-        setRemainingSeconds(data.remainingSeconds || 300);
+        const rem = data.remainingSeconds || 300;
+        setRemainingSeconds(rem);
+        try {
+          localStorage.setItem(`consent_state_${token}`, JSON.stringify({
+            otpSent: true,
+            isUnlocked: true,
+            remainingSeconds: rem,
+            bcryptHash: bcryptPreview,
+            timestamp: Date.now()
+          }));
+        } catch(e) {}
         if (onUnlockedChange) onUnlockedChange(true);
       } else {
         setErrorMsg(data.message || 'Invalid OTP. BCrypt Cryptographic verification failed.');
@@ -141,6 +227,15 @@ export const PatientPrivacyShield = ({
       if (enteredOtp.length >= 4) {
         setIsUnlocked(true);
         setRemainingSeconds(300);
+        try {
+          localStorage.setItem(`consent_state_${token}`, JSON.stringify({
+            otpSent: true,
+            isUnlocked: true,
+            remainingSeconds: 300,
+            bcryptHash: bcryptPreview,
+            timestamp: Date.now()
+          }));
+        } catch(e) {}
         if (onUnlockedChange) onUnlockedChange(true);
       } else {
         setErrorMsg('Invalid OTP. Please check with patient.');
@@ -156,6 +251,10 @@ export const PatientPrivacyShield = ({
     setRemainingSeconds(300);
     setOtpSent(false);
     setEnteredOtp('');
+    const token = activePatient?.token || 'OPD-101';
+    try {
+      localStorage.removeItem(`consent_state_${token}`);
+    } catch(e) {}
     if (onUnlockedChange) onUnlockedChange(false);
   };
 

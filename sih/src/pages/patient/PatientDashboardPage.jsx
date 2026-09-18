@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePatientSession } from '../../context/PatientSessionContext';
 import { Stepper } from '../../components/common/Stepper';
 import { Screen1Welcome } from '../../components/patient/Screen1Welcome';
@@ -20,7 +20,7 @@ import { getTranslation } from '../../data/translations';
 import {
   Calendar, FileText, UploadCloud, ShieldCheck, QrCode, LogOut, PlusCircle,
   Clock, Stethoscope, Eye, Activity, ArrowRight, Globe, Check, Mic, X, Sparkles,
-  Home, CheckCircle2, KeyRound
+  Home, CheckCircle2, KeyRound, Copy, Bell, BellRing
 } from 'lucide-react';
 
 export const PatientDashboardPage = ({ onLogout }) => {
@@ -30,6 +30,7 @@ export const PatientDashboardPage = ({ onLogout }) => {
   // Navigation active tab: 'overview' | 'intake' | 'visits' | 'documents' | 'abha' | 'book'
   const [activeTab, setActiveTab] = useState('overview');
   const [langModalOpen, setLangModalOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
   const lang = session.identity.language || 'ta-IN'; // Default to Tamil
 
@@ -54,6 +55,115 @@ export const PatientDashboardPage = ({ onLogout }) => {
     const matchPhone = currentPhone && aptPhone && (aptPhone.includes(currentPhone) || currentPhone.includes(aptPhone));
     return matchName || matchPhone;
   });
+
+  const [activeConsentOtp, setActiveConsentOtp] = useState(null);
+  const [copiedBannerOtp, setCopiedBannerOtp] = useState(false);
+
+  const currentToken = (authenticatedUser?.token || session.identity?.token || "PAT-1001").trim().toUpperCase();
+
+  const isMatchPatient = (targetToken, targetName, targetPhone) => {
+    const tToken = (targetToken || '').trim().toUpperCase();
+    const tName = (targetName || '').trim().toLowerCase();
+    const tPhone = (targetPhone || '').trim();
+
+    if (tName && currentPatientName && (tName === currentPatientName || tName.includes(currentPatientName) || currentPatientName.includes(tName))) {
+      return true;
+    }
+    if (tToken && (tToken === currentToken || tToken.replace('PAT-', 'OPD-') === currentToken.replace('PAT-', 'OPD-') || tToken.replace('OPD-', 'PAT-') === currentToken.replace('OPD-', 'PAT-'))) {
+      return true;
+    }
+    if (tPhone && currentPhone && tPhone === currentPhone) {
+      return true;
+    }
+    return false;
+  };
+
+  // Poll for active doctor consent OTP for this patient (Spring Boot REST + Storage)
+  useEffect(() => {
+    const checkOtp = async () => {
+      const tokensToCheck = [
+        currentToken,
+        currentToken.replace('PAT-', 'OPD-'),
+        currentToken.replace('OPD-', 'PAT-')
+      ].filter(Boolean);
+
+      // 1. Check Spring Boot Backend directly
+      for (const token of tokensToCheck) {
+        try {
+          const res = await fetch(`http://localhost:8080/api/doctor/consent/patient-active-otp/${token}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.plainOtp && (data.status === 'PENDING' || data.status === 'ACTIVE' || data.status === 'OTP_SENT')) {
+              setActiveConsentOtp({
+                plainOtp: data.plainOtp,
+                doctorName: data.doctorName || 'Dr. V. S. Ramachandran',
+                patientToken: data.patientToken || token
+              });
+              return;
+            }
+          }
+        } catch (e) {
+          // Backend offline fallback
+        }
+      }
+
+      // 2. Check localStorage
+      try {
+        const saved = localStorage.getItem('medikiosk_active_otp_modal');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const elapsed = Date.now() - (parsed.timestamp || 0);
+          if (elapsed < 15 * 60 * 1000) {
+            if (isMatchPatient(parsed.details?.patientToken, parsed.details?.patientName, parsed.details?.patientPhone)) {
+              setActiveConsentOtp({
+                plainOtp: parsed.plainOtp || '745654',
+                doctorName: parsed.details?.doctorName || 'Dr. V. S. Ramachandran',
+                patientToken: parsed.details?.patientToken || currentToken
+              });
+              return;
+            }
+          }
+        }
+        
+        for (const token of tokensToCheck) {
+          const directState = localStorage.getItem(`consent_state_${token}`);
+          if (directState) {
+            const parsed = JSON.parse(directState);
+            const elapsed = Date.now() - (parsed.timestamp || 0);
+            if (parsed.otpSent && elapsed < 15 * 60 * 1000) {
+              setActiveConsentOtp({
+                plainOtp: '745654',
+                doctorName: 'Dr. V. S. Ramachandran',
+                patientToken: token
+              });
+              return;
+            }
+          }
+        }
+        setActiveConsentOtp(null);
+      } catch(e) {}
+    };
+
+    const handleOtpEvent = (e) => {
+      const details = e.detail;
+      if (!details) return;
+      if (isMatchPatient(details.patientToken, details.patientName, details.patientPhone)) {
+        checkOtp();
+      }
+    };
+
+    checkOtp();
+    const interval = setInterval(checkOtp, 1500);
+    window.addEventListener('storage', checkOtp);
+    window.addEventListener('medikiosk-patient-otp', handleOtpEvent);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', checkOtp);
+      window.removeEventListener('medikiosk-patient-otp', handleOtpEvent);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentToken, currentPatientName, currentPhone]);
 
   const handleSelectLanguage = (langCode) => {
     updateIdentity({ language: langCode });
@@ -154,14 +264,6 @@ export const PatientDashboardPage = ({ onLogout }) => {
 
         {/* Sidebar Footer & Role Switcher */}
         <div className="pt-4 border-t border-stone-800 space-y-3">
-          <div className="rounded-xl overflow-hidden border border-stone-800 relative h-24">
-            <img src={MEDICAL_IMAGES.tnHospital} alt="Government Hospital" className="w-full h-full object-cover opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent p-2 flex flex-col justify-end">
-              <span className="text-[10px] text-emerald-400 font-bold">Tamil Nadu Health System</span>
-              <span className="text-[9px] text-stone-300 line-clamp-1">{hospitalName}</span>
-            </div>
-          </div>
-
           <div className="space-y-1">
             <div className="text-[10px] uppercase font-mono font-bold text-stone-400 tracking-wider px-1">Switch Role Portal</div>
             <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
@@ -175,7 +277,7 @@ export const PatientDashboardPage = ({ onLogout }) => {
                 ▸ Doctor
               </button>
               <button onClick={() => setViewMode('admin')} className="p-1.5 rounded-lg bg-stone-950 border border-stone-800 hover:bg-stone-800 text-stone-300 text-left truncate">
-                ▸ AYUSH
+                ▸ Admin
               </button>
             </div>
           </div>
@@ -191,9 +293,200 @@ export const PatientDashboardPage = ({ onLogout }) => {
 
       {/* MAIN CONTENT AREA (DARK ADMIN THEME) */}
       <main className="flex-1 h-screen overflow-y-auto p-4 sm:p-6 md:p-8 w-full space-y-6 bg-stone-950">
+        {/* TOP PATIENT PORTAL HEADER WITH NOTIFICATION BELL */}
+        <header className="flex items-center justify-between pb-4 border-b border-stone-800 relative z-40">
+          <div className="flex items-center gap-3">
+            <div className="md:hidden w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center font-extrabold text-white font-mono shadow-md">
+              {patientName.charAt(0)}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                  <span>{patientName}</span>
+                  <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                    ABHA: {abhaNumber}
+                  </span>
+                </h1>
+              </div>
+              <p className="text-xs text-stone-400 truncate max-w-xs sm:max-w-md">
+                {hospitalName}
+              </p>
+            </div>
+          </div>
+
+          {/* Right Header Actions: Notification Bell + Language */}
+          <div className="flex items-center gap-3 relative">
+            {/* NOTIFICATION BELL ICON */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationOpen(!notificationOpen)}
+                className={`p-2.5 rounded-2xl border transition relative flex items-center justify-center ${
+                  activeConsentOtp
+                    ? 'bg-emerald-950/90 border-emerald-500 text-emerald-400 hover:bg-emerald-900 shadow-lg shadow-emerald-500/20 animate-pulse'
+                    : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800'
+                }`}
+                title="Notifications & Active Doctor OTPs"
+              >
+                {activeConsentOtp ? (
+                  <BellRing className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <Bell className="w-5 h-5" />
+                )}
+
+                {/* Unread Alert Ping Badge */}
+                {activeConsentOtp && (
+                  <>
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full animate-ping" />
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-stone-950 flex items-center justify-center text-[8px] font-black text-stone-950 shadow">
+                      1
+                    </span>
+                  </>
+                )}
+              </button>
+
+              {/* NOTIFICATION DROPDOWN DRAWER */}
+              {notificationOpen && (
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-stone-900 border-2 border-emerald-500 rounded-2xl shadow-2xl p-4 text-stone-100 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+                    <div className="flex items-center gap-2">
+                      <BellRing className="w-4 h-4 text-emerald-400" />
+                      <h3 className="font-extrabold text-sm text-white">Doctor Consent Notifications</h3>
+                      {activeConsentOtp && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                          1 Active OTP
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setNotificationOpen(false)}
+                      className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition"
+                      title="Close"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {activeConsentOtp ? (
+                    <div className="mt-3 space-y-3">
+                      <div className="p-3.5 bg-stone-950 rounded-xl border border-emerald-900/60 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
+                            ABDM Consultation OTP
+                          </span>
+                          <span className="text-[10px] font-mono text-stone-400">Valid for 5 mins</span>
+                        </div>
+                        <p className="text-xs text-stone-300">
+                          <strong className="text-white">{activeConsentOtp.doctorName}</strong> requested access for Token <strong className="text-emerald-400 font-mono">{activeConsentOtp.patientToken}</strong>.
+                        </p>
+
+                        <div className="bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 border border-emerald-500/60 rounded-xl p-3 text-center">
+                          <span className="text-[9px] uppercase font-mono tracking-widest text-emerald-300 block mb-1">
+                            Your 6-Digit Consent Code
+                          </span>
+                          <div className="text-3xl font-black font-mono tracking-widest text-emerald-400 select-all">
+                            {activeConsentOtp.plainOtp}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard?.writeText(activeConsentOtp.plainOtp);
+                              setCopiedBannerOtp(true);
+                              setTimeout(() => setCopiedBannerOtp(false), 2000);
+                            }}
+                            className="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                          >
+                            {copiedBannerOtp ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                            {copiedBannerOtp ? 'Copied!' : 'Copy Code'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setNotificationOpen(false);
+                              window.dispatchEvent(new CustomEvent('medikiosk-open-otp-modal', {
+                                detail: {
+                                  details: {
+                                    patientToken: activeConsentOtp.patientToken,
+                                    doctorName: activeConsentOtp.doctorName,
+                                    timestamp: new Date().toLocaleTimeString()
+                                  },
+                                  plainOtp: activeConsentOtp.plainOtp
+                                }
+                              }));
+                            }}
+                            className="py-2.5 px-3 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> View Popup
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center space-y-2">
+                      <div className="w-10 h-10 rounded-full bg-stone-800 text-stone-500 flex items-center justify-center mx-auto">
+                        <Bell className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs text-stone-300 font-semibold">No active OTP requests</p>
+                      <p className="text-[11px] text-stone-500 max-w-xs mx-auto">When your doctor requests consent, your 6-digit OTP code will appear right here.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Language Quick Trigger */}
+            <button
+              onClick={() => setLangModalOpen(true)}
+              className="px-3 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 text-xs font-bold text-stone-300 flex items-center gap-1.5 transition"
+            >
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">{lang === 'ta-IN' ? 'தமிழ்' : lang === 'hi-IN' ? 'हिन्दी' : 'English'}</span>
+            </button>
+          </div>
+        </header>
+
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            {/* ACTIVE DOCTOR CONSENT OTP ALERT BANNER (IF REQUESTED) */}
+            {activeConsentOtp && (
+              <div className="bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 border-2 border-emerald-500 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                <div className="absolute top-0 right-0 w-64 h-full bg-emerald-500/10 blur-xl pointer-events-none" />
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                      <KeyRound className="w-6 h-6 animate-pulse" />
+                    </div>
+                    <div>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-900 text-emerald-300 border border-emerald-600 uppercase">
+                        Active Doctor Consent Request
+                      </span>
+                      <h2 className="text-lg font-black text-white mt-1">
+                        Doctor Consent OTP: <span className="font-mono text-emerald-400 text-2xl font-black tracking-widest ml-1">{activeConsentOtp.plainOtp}</span>
+                      </h2>
+                      <p className="text-xs text-stone-300">
+                        Requested by <strong className="text-white">{activeConsentOtp.doctorName}</strong> for Token <span className="font-mono text-emerald-400 font-bold">{activeConsentOtp.patientToken}</span>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText(activeConsentOtp.plainOtp);
+                        setCopiedBannerOtp(true);
+                        setTimeout(() => setCopiedBannerOtp(false), 2000);
+                      }}
+                      className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-xs flex items-center gap-2 shadow-lg transition active:scale-95"
+                    >
+                      {copiedBannerOtp ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copiedBannerOtp ? 'Copied!' : 'Copy OTP'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Interactive Hero Banner */}
             <div className="relative rounded-3xl overflow-hidden bg-stone-900 text-white shadow-xl border border-stone-800">
               <img src={MEDICAL_IMAGES.patientBanner} alt="Patient Banner" className="w-full h-48 sm:h-56 object-cover opacity-35" />

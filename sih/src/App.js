@@ -170,7 +170,7 @@ const MainAppContent = () => {
 
       {/* Global Modals */}
       <CookieConsentModal />
-      <PatientConsentOtpModal />
+      {viewMode === 'patient-portal' && <PatientConsentOtpModal />}
       <SystemStatusModal 
         isOpen={systemModalOpen} 
         onClose={() => setSystemModalOpen(false)}
